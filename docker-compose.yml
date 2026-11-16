@@ -1,0 +1,81 @@
+# ============================================================
+# 校招全流程助手 · 生产编排（阿里云 / 腾讯云 轻量应用服务器）
+# ============================================================
+#
+# 用法（在仓库根目录执行）：
+#   docker compose up -d --build     构建并启动
+#   docker compose ps                看状态
+#   docker compose logs -f app       看后端日志
+#   docker compose down              停止（数据保留在 backend/data）
+#
+# 完整步骤与排错见 DEPLOY.md；推荐直接用 deploy/deploy.sh（会把属主、健康检查一并处理好）。
+#
+# 拓扑：  公网 → caddy(80/443, 自动 HTTPS) → app(内网 8000)
+# 为什么前面要放 Caddy：本项目的「语音作答」用浏览器麦克风，
+# 浏览器只在 HTTPS 下才给麦克风权限，而 Caddy 能自动申请并续期证书，
+# 不需要你手动管 Let's Encrypt。
+#
+# 这里刻意**不写**顶层 `name:` 字段：它需要 Compose v2，写了会让老版本
+# （部分发行版自带的 docker-compose v1）直接报「不支持的顶层键」而启动不了。
+# 不写时项目名默认取目录名，所以按 DEPLOY.md 放在 /opt/ai-interview-coach 即可。
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ai-interview-coach:latest
+    restart: unless-stopped
+
+    # 生产配置与密钥。**这个文件必须在服务器上存在**（模板：backend/.env.production.example）。
+    # 文件缺失时 docker compose 会直接报错退出——这是刻意的：
+    # 宁可起不来，也不要带着空密钥/错误配置对外服务。
+    env_file:
+      - ./backend/.env
+
+    environment:
+      TZ: Asia/Shanghai
+
+    volumes:
+      # 全项目唯一需要持久化的目录：
+      #   app.db        SQLite 全量业务数据（账号 / 面试记录 / 报告 / 配额）
+      #   uploads/      用户上传的简历与 JD 原件（PDF）
+      #   tts_cache/    面试官语音缓存（可重建，丢了只是第一次播放慢一点）
+      # 这个目录丢了 = 用户数据全丢。备份见 deploy/backup.sh。
+      - ./backend/data:/app/backend/data
+
+    # 只在内网暴露 8000，公网访问一律经 caddy（这样才有 HTTPS）。
+    # 不要改成 ports: 那会绕过 HTTPS 直接把后端暴露给公网。
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+
+    # 等后端健康检查通过再启动，避免首屏拿到 502
+    depends_on:
+      app:
+        condition: service_healthy
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    environment:
+      # 在仓库根目录的 .env 里配置（该文件已被 .gitignore 忽略）：
+      #   :80                   → 纯 HTTP，用于「还没域名」时先用 http://<公网IP>/ 验证
+      #   interview.example.com → 自动申请并续期证书，HTTP 自动跳 HTTPS
+      # 注意：只有填了域名，麦克风（语音作答）才可用。
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # 证书与 ACME 账号必须持久化：否则每次重启都重新申请，
+      # 容易撞上 Let's Encrypt 的频率限制（同一域名每周 5 次）。
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

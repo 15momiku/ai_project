@@ -1,0 +1,312 @@
+/* ==========================================================================
+   我的面试（报告 / 错题本 / 录音回放）
+   全部走语义令牌；触控目标 ≥44px；动效遵循 prefers-reduced-motion。
+   ========================================================================== */
+
+/* ---- 子标签 ---- */
+.mi-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mi-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.mi-tab {
+  appearance: none;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.mi-tab:hover {
+  color: var(--text);
+  background: var(--fill-2);
+}
+.mi-tab.on {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+.mi-tab:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.mi-panel:focus {
+  outline: none;
+}
+
+/* ---- 汇总卡 ---- */
+.mi-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+@media (min-width: 640px) {
+  .mi-summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.mi-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+.mi-stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+.mi-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.mi-stat-value.up {
+  color: var(--fg-ok);
+}
+.mi-stat-value.down {
+  color: var(--fg-warn);
+}
+
+/* ---- 曲线卡 ---- */
+.mi-chart {
+  margin-bottom: var(--space-4);
+}
+.mi-chart .trend-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* 曲线上的点可点：给出可点击的指针与聚焦态（键盘 Enter/Space 同样可用） */
+.trend-hit {
+  cursor: pointer;
+}
+.trend-hit:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+.trend-hit:hover .trend-dot {
+  fill: var(--tint-primary);
+}
+
+/* ---- 场次列表 ---- */
+.mi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mi-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.mi-item:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow);
+}
+
+.mi-date {
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.mi-job {
+  flex: 1 1 140px;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mi-score {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--fg-link);
+}
+.mi-item .btn {
+  flex: none;
+  margin-left: auto;
+}
+
+@media (max-width: 520px) {
+  .mi-item {
+    gap: 8px 10px;
+  }
+  .mi-job {
+    order: -1;
+    flex-basis: 100%;
+  }
+}
+
+/* ---- 「仅登录用户可见」说明卡里的功能点 ---- */
+.login-points {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.login-points li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ---- 错题本以「标签页内容」形态出现时的头部 ---- */
+.wb-head-embedded {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+.wb-head-embedded .page-sub {
+  margin: 0;
+}
+
+/* ==========================================================================
+   录音回放
+   ========================================================================== */
+.rec-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: 12px var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-4);
+}
+.rec-stat {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.rec-stat .mute-2 {
+  margin-left: 6px;
+}
+
+.rec-group {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+.rec-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.rec-group-date {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rec-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.rec-idx {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+.rec-sec {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+}
+/* 播放器占满剩余宽度；preload=none 时不会预下载，多条录音也不会同时请求 */
+.rec-audio {
+  flex: 1 1 240px;
+  min-width: 0;
+  height: 36px;
+}
+.rec-del {
+  flex: none;
+  min-height: 44px;
+  padding: 0 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mi-tab,
+  .mi-item,
+  .trend-hit {
+    transition: none;
+  }
+}

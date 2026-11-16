@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="{{ labels.html_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ labels.doc_title }} - {{ name }}</title>
+    <style>
+        /* ============================================================
+           模板2：简约商务风格
+           内容板块与模板1 共用 templates/_sections.html，
+           这里只定义本模板的配色与线型。
+           ============================================================ */
+        /* ============================================================
+           细线宽度一律写 px，不写 em —— 与模板1 同因：
+           基准字号被压到 10.5px 时，不足 0.1em 的描边（0.05~0.09em）
+           只有 0.5~0.9px，再经 wkhtmltopdf smart shrinking 缩放后低于
+           0.4pt，Qt 取整会把整条线丢掉。板块标题下划线、证件照边框、
+           技能标签描边都属于这一类。≥0.1em 的粗线仍保持 em 等比缩放。
+           ============================================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            /* 注意：不要改用 "Microsoft YaHei"，Qt 会合成“假粗体”（同一字形重复绘制），
+               导致导出的 PDF 复制/ATS 解析出来是「张张三三」。YaHei UI 能命中真正的粗体字面。 */
+            font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC",
+                         "Source Han Sans SC", "Noto Sans CJK SC", "WenQuanYi Micro Hei",
+                         Arial, sans-serif;
+            background: #fff;
+            color: #1f2937;
+            /* 全篇字号由 base_font 统一驱动（后端自适应一整页时在 10.5~20px 之间调节），
+               其余尺寸一律写成 em，随它等比伸缩 */
+            font-size: {{ base_font|default(20) }}px;
+            line-height: 1.55;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ===== 顶部：姓名 + 求职意向 + 横向基础信息 + 右上角证件照 ===== */
+        .header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            padding-bottom: 0.5em;
+            margin-bottom: 0.9em;
+            border-bottom: 0.1em solid #1e3a8a;
+        }
+        .header-main { display: table-cell; vertical-align: middle; padding-right: 1em; }
+        .header-photo { display: table-cell; width: 5.3em; vertical-align: top; text-align: right; }
+        .name {
+            font-size: 2.1em;
+            font-weight: bold;
+            color: #111827;
+            letter-spacing: 0.06em;
+            line-height: 1.2;
+        }
+        .job-intention {
+            margin-top: 0.15em;
+            font-size: 1em;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        .meta-row { margin-top: 0.35em; font-size: 0.88em; color: #4b5563; }
+        .meta-item { white-space: nowrap; }
+        .meta-sep {
+            display: inline-block;
+            width: 1px;
+            height: 0.85em;
+            margin: 0 0.6em;
+            background: #cbd5e1;
+            vertical-align: -0.08em;
+        }
+        .photo {
+            display: block;
+            width: 4.7em;
+            height: 6.6em;
+            margin-left: auto;
+            border: 1px solid #cbd5e1;
+            background: #eef4fd;
+        }
+
+        /* ===== 板块：深蓝加粗标题 + 蓝色水平分隔线 ===== */
+        .section { margin-bottom: 0.85em; }
+        .section:last-child { margin-bottom: 0; }
+        /* 板块标题容器：模板2 不用它画线，仅作占位（板块模板两模板共用） */
+        .section-head { margin-bottom: 0.45em; }
+        .section-title {
+            display: block;          /* 标题文字 + 下划细线贯穿整行 */
+            font-size: 1.05em;
+            font-weight: bold;
+            color: #1e3a8a;
+            letter-spacing: 0.04em;
+            padding-bottom: 0.2em;
+            border-bottom: 1px solid #1e3a8a;
+        }
+
+        /* ===== 每条经历：左时间加粗 / 中单位加粗居中 / 右岗位加粗右对齐 ===== */
+        .item { margin-bottom: 0.55em; }
+        .item:last-child { margin-bottom: 0; }
+        .item-header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 0.95em;
+            font-weight: bold;
+        }
+        .item-header span { display: table-cell; vertical-align: top; }
+        .item-date {
+            width: 27%;
+            text-align: left;
+            color: #1e3a8a;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        /* 中间列给 46%，这样它的中心正好落在整行中心上 → 单位名称是「页面居中」而不是「列内居中」 */
+        .item-company {
+            width: 46%;
+            text-align: center;
+            color: #111827;
+        }
+        .item-title {
+            width: 27%;
+            text-align: right;
+            color: #111827;
+        }
+
+        /* ===== 正文：实心圆点项目符号（保留背景/行动/结果标签） ===== */
+        .item-desc {
+            margin-top: 0.2em;
+            padding-left: 0.5em;
+            font-size: 0.95em;
+            color: #374151;
+            text-align: justify;
+        }
+        .desc-line {
+            padding-left: 1em;
+            text-indent: -1em;      /* 悬挂缩进：换行后与首行文字对齐 */
+            line-height: 1.55;
+            margin-bottom: 0.08em;
+        }
+        .desc-line:last-child { margin-bottom: 0; }
+        /* 实心圆点：用 CSS 画，避免依赖字体里 U+2022 的字形（YaHei 会退化成小中点） */
+        .desc-line::before {
+            content: "";
+            display: inline-block;
+            width: 0.3em;
+            height: 0.3em;
+            margin-right: 0.7em;
+            border-radius: 50%;
+            background: #1e3a8a;
+            vertical-align: 0.12em;
+        }
+        .desc-label { font-weight: bold; color: #1f2937; margin-right: 0.1em; }
+
+        /* ===== 荣誉奖项：三列表格 —— 获奖时间 / 竞赛名称 / 奖项级别 ===== */
+        .honor-line {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 0.95em;
+            color: #374151;
+            margin-bottom: 0.22em;
+        }
+        .honor-line:last-child { margin-bottom: 0; }
+        .honor-line span {
+            display: table-cell;
+            vertical-align: top;
+        }
+        /* 三列对齐与经历行同口径：时间贴左、名称页面居中、等级贴右。
+           中间列同样取 46%，这样它的中心正好落在整行中心上（只做列内居中的话会偏左约 25pt） */
+        .honor-date { width: 27%; text-align: left; color: #4b5563; font-variant-numeric: tabular-nums; }
+        .honor-name { width: 46%; text-align: center; color: #111827; }
+        .honor-level { width: 27%; text-align: right; }
+
+        /* ===== 技能特长 ===== */
+        .skill-tag {
+            display: inline-block;
+            padding: 0.1em 0.55em;
+            margin: 0 0.3em 0.3em 0;
+            font-size: 0.92em;
+            color: #1e3a8a;
+            background: #eff4ff;
+            border: 1px solid #dbe4ff;
+            border-radius: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-main">
+            <div class="name">{{ name }}</div>
+            {% if job_intention %}<div class="job-intention">{{ labels.job_intention }}{{ labels.label_sep }}{{ job_intention }}</div>{% endif %}
+            {% if meta_items %}
+            <div class="meta-row">
+                {% for item in meta_items %}<span class="meta-item">{{ item }}</span>{% if not loop.last %}<span class="meta-sep"></span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="header-photo">{% include "_photo.html" %}</div>
+    </div>
+
+{% include "_sections.html" %}
+</body>
+</html>

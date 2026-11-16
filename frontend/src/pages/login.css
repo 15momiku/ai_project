@@ -1,0 +1,220 @@
+/* ==========================================================================
+   登录 / 注册页
+   复用 global.css 的语义令牌与 .card / .btn / .input / .alert 等既有类，
+   这里只负责登录页专属的布局与少量状态样式。
+   ========================================================================== */
+
+.login-page {
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ---------------- 品牌区 ---------------- */
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.login-brand .logo {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--fg-on-primary);
+}
+
+.login-brand-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--fg-title);
+  line-height: 1.3;
+}
+
+.login-brand-sub {
+  margin-top: 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ---------------- 登录 / 注册 切换 ---------------- */
+.login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.login-tab {
+  min-height: var(--tap-min);
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.login-tab:hover {
+  color: var(--text);
+}
+
+/* 选中态：白色滑块 + 主色文字（macOS segmented control） */
+.login-tab.on {
+  background: var(--surface);
+  color: var(--fg-link);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+.login-alert {
+  align-items: center;
+  font-size: var(--fs-sm);
+}
+
+/* ---------------- 表单 ---------------- */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 图标 + 输入框：图标绝对定位，输入框补左内边距 */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap .input-icon {
+  position: absolute;
+  left: 12px;
+  display: grid;
+  place-items: center;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--text-mute);
+  pointer-events: none;
+}
+
+.input-wrap .input-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.input-wrap .input {
+  padding-left: 38px;
+  padding-right: 52px;
+}
+
+.input-wrap.has-error .input {
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+.input-wrap.has-error .input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3.5px color-mix(in srgb, var(--danger) 16%, transparent);
+}
+
+/* 44×44 触摸目标（--tap-min）；输入框本身 min-height 也是 44，两者对齐 */
+.pwd-toggle {
+  position: absolute;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.pwd-toggle:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.pwd-toggle svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.field-error {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--danger);
+  line-height: 1.5;
+}
+
+.login-submit {
+  margin-top: var(--space-1);
+  gap: var(--space-2);
+}
+
+/* ---------------- 底部说明 ---------------- */
+.login-guest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.login-note {
+  margin: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.login-note strong {
+  color: var(--fg-primary-soft);
+  font-weight: 600;
+}
+
+.login-back {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+}
+
+/* 移动端：卡片贴边、减小内边距 */
+@media (max-width: 480px) {
+  .login-page {
+    padding: var(--space-4) var(--space-3);
+    min-height: calc(100vh - 80px);
+  }
+  .login-card {
+    padding: var(--space-5) var(--space-4);
+    gap: var(--space-4);
+  }
+}

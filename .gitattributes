@@ -1,0 +1,64 @@
+# ============================================================
+# 换行符与文本/二进制策略
+# ============================================================
+#
+# 为什么需要这个文件：
+#   本仓库在 Windows 上开发（本机 core.autocrlf=true），而部署目标是 Linux
+#   （见 DEPLOY.md）。如果让 shell 脚本在 checkout 时被转成 CRLF，服务器上执行
+#   `bash deploy/deploy.sh` 会报 `\r: command not found` 这类极难定位的错误 ——
+#   报错信息完全指不到「换行符」这个真实原因。
+#
+#   所以这里把「必须在 Linux 上执行 / 被解析」的文件**钉死成 LF**，
+#   不再依赖每位开发者本机的 core.autocrlf 设置：换行符策略跟着仓库走，
+#   而不是跟着克隆它的人的 Git 配置走。
+#
+# 注意：本文件对**已经提交的文件**不产生内容变更（它们的索引本来就是 LF），
+# 它约束的是「以后每次 checkout 到工作区时用哪种换行符」。
+
+# ---- 必须在 Linux 上执行：强制 LF ----
+*.sh              text eol=lf
+Dockerfile        text eol=lf
+*.dockerfile      text eol=lf
+Makefile          text eol=lf
+
+# ---- 容器 / 部署配置：解析器对 CRLF 敏感 ----
+# Caddyfile 没有扩展名，只能按路径钉；.dockerignore 会被 Docker 按行解析。
+deploy/Caddyfile  text eol=lf
+.dockerignore     text eol=lf
+.gitignore        text eol=lf
+.gitattributes    text eol=lf
+
+# ---- 二进制：禁止任何换行 / 编码转换 ----
+# 目前仓库里没有这些类型的文件（图片与字体走前端构建、数据库与上传件都在
+# .gitignore 里），列出来是给以后加文件时兜底：一旦有人提交，不会被「文本转换」
+# 破坏字节内容。
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.webp    binary
+*.ico     binary
+*.pdf     binary
+*.woff    binary
+*.woff2   binary
+*.ttf     binary
+*.otf     binary
+*.xlsx    binary
+*.db      binary
+*.mp3     binary
+*.wav     binary
+
+# ---- 刻意不在这里指定的东西 ----
+#
+# 1. `start.ps1` / `start.cmd`（Windows 专用脚本）：**不指定 eol**，交给
+#    core.autocrlf 处理即可 —— 它们只在 Windows 上跑，Linux 侧用不到。
+#    给它们写 eol=crlf 反而会让工作区里已有的 LF 版本凭空显示成「已修改」，
+#    制造一次没有实际意义的改动。
+#
+# 2. `start.ps1` 的 **UTF-8 with BOM**：BOM 是文件内容的一部分，Git 不会动它，
+#    但也**无法**用 .gitattributes 表达（没有「保留 BOM」这种属性）。
+#    它只能靠两条纪律守住：
+#      · 编辑时以 UTF-8 with BOM 保存（PowerShell 5.1 会把无 BOM 的 UTF-8 按
+#        本机 ANSI 码页解析，中文注释会吃掉引号并报「字符串缺少结束符」这类假语法错误）；
+#      · `start.cmd` 启动前的那道 BOM 检查（缺失时直接给出明确提示）。
+#    已确认 HEAD 里的 `start.ps1` blob 带 BOM。

@@ -1,0 +1,312 @@
+/* ===== 面试进行中 ===== */
+
+.interview-page {
+  min-height: 100vh;
+  min-height: 100dvh; /* 移动端地址栏收起时不再多出一屏滚动 */
+  padding-bottom: calc(var(--space-6) + var(--safe-b));
+}
+
+.mb-12 {
+  margin-bottom: var(--space-3);
+}
+
+/* 顶部状态栏：sticky 时必须避开刘海/状态栏安全区（macOS 工具栏：半透明毛玻璃） */
+.iv-top {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--line);
+  padding-top: var(--safe-t);
+}
+.iv-top-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.iv-live-chip {
+  font-size: 11.5px;
+  padding: 3px 9px;
+}
+.iv-title-row {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-2);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.iv-title-row .iv-job {
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+}
+.iv-title-row .iv-company {
+  font-size: 11.5px;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.iv-job {
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.iv-company {
+  font-size: 11.5px;
+  color: var(--text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.iv-top-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+/* ===== 「给我一点思路」提示卡（体验增强 §4）=====
+   只给框架、不给参考答案；样式刻意低调，避免抢走题目本身的注意力 */
+.iv-hint {
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.iv-hint-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-2);
+}
+.iv-hint-line {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.iv-hint-steps {
+  margin: 0 0 var(--space-2);
+  padding-left: 1.25em;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.iv-hint-steps b {
+  color: var(--text);
+}
+
+/* 跳过二次确认：内联一行，不弹窗（跳过是半破坏性操作，但也不该打断节奏） */
+.iv-skip-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+}
+
+.iv-body {
+  padding-top: var(--space-4);
+}
+
+.iv-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+/* 数字人舞台 */
+.iv-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.iv-avatar-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3) var(--space-3);
+  /* 数字人舞台：极浅灰底把白色人物从白页面上分离出来（macOS 分组面板观感） */
+  background: var(--surface-sunken);
+}
+.iv-followup {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 2;
+}
+.iv-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.iv-stage-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 移动端控制数字人高度，保证字幕与作答区尽量落在首屏 */
+.iv-avatar-card .avatar-svg {
+  max-width: 268px;
+}
+
+.iv-talk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* 题目区是程序化聚焦目标（tabIndex=-1）：进入 ready 时把焦点交给它，
+   读屏会念出「面试官提问」并把后续 Tab 顺序引到「开始回答」。
+   默认 outline 会糊住整块文字，改为只给键盘触发的聚焦留一圈细边。 */
+.iv-talk:focus {
+  outline: none;
+}
+.iv-talk:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 6px;
+  border-radius: var(--r-md);
+}
+.iv-focus-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.iv-question {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  padding: var(--space-2) var(--space-3);
+}
+.iv-question summary {
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  /* 折叠标题也是可点目标，补足 44px 热区 */
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+}
+.iv-question p {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.75;
+  max-width: var(--measure);
+}
+
+/* 回答区 */
+.iv-answer {
+  display: flex;
+  flex-direction: column;
+}
+.iv-textarea {
+  min-height: 150px;
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+.iv-textarea:disabled {
+  opacity: 1;
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+.iv-interim {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.iv-answer-meta {
+  margin-top: var(--space-2);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.iv-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+.iv-actions--sub {
+  margin-top: var(--space-3);
+  align-items: center;
+}
+
+/* 平板竖屏：单列时收窄到可读宽度（否则卡片被拉到 ~800px 宽） */
+@media (min-width: 700px) and (max-width: 859px) {
+  .iv-body {
+    max-width: 720px;
+  }
+}
+
+/* 移动端作答框字号 ≥16px：Safari 在输入框 <16px 时会强制放大整页，
+   答完题还停在放大状态（本类的 14.5px 优先级高于 global.css 的通用规则，
+   故此处必须单独覆盖）。 */
+@media (max-width: 859px) {
+  .iv-textarea {
+    font-size: 16px;
+  }
+}
+
+/* 矮屏（横屏手机 / 小笔电）：优先让字幕与作答区落在视口内，缩小数字人 */
+@media (max-height: 720px) and (max-width: 859px) {
+  .iv-avatar-card {
+    padding: var(--space-3);
+  }
+  .iv-avatar-card .avatar-svg {
+    max-width: 176px;
+  }
+}
+
+@media (min-width: 860px) {
+  .iv-top-inner {
+    padding: var(--space-3) var(--space-5) var(--space-2);
+  }
+  .iv-title-row {
+    padding: 0 var(--space-5) var(--space-2);
+  }
+  .iv-avatar-card .avatar-svg {
+    max-width: 340px;
+  }
+  .iv-body {
+    padding-top: var(--space-5);
+  }
+  .iv-grid {
+    /* minmax(0,…) 防止字幕/长题干把左右两列顶宽溢出容器 */
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+  .iv-textarea {
+    min-height: 220px;
+  }
+}

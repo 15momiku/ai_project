@@ -1,0 +1,1890 @@
+/* ==========================================================================
+   AI面试模拟官 · 全局设计令牌 + 基础组件
+   简约 macOS 风格 · 白色背景 · 移动端优先，桌面端居中（最大宽度 1180px）
+
+   主题策略：页面/组件一律引用下方语义令牌，不写死 hex。
+   换主题（含深色模式）只需重新映射 :root 区块。
+   ========================================================================== */
+
+:root {
+  /* 原生控件（滚动条 / 输入框 / 日期选择器）跟随浅色；
+     深色块里覆盖为 dark，避免"系统是深色但用户选了浅色"时原生控件仍是深色 */
+  color-scheme: light;
+
+  /* ---- 色板（品牌基色，语义映射见下方「语义令牌」）---- */
+  /* macOS 系统蓝作为唯一强调色：克制、专业、在白色背景上对比充足 */
+  --primary: #0a84ff;
+  --primary-hover: #0071e3;
+  --primary-deep: #0060df;
+  --primary-2: #5e5ce6; /* 次强调（图表渐变末端） */
+  --accent: #0071e3;
+
+  /* 状态色：全部按白底 4.5:1 正文标准选取 */
+  /* ok 由 #1a8a4a 微调为 #1a8348：只为让白字实心按钮（.btn--ok）达到 4.5:1
+     （4.39 → 4.79），亮度差 <3%、肉眼不可辨，同色系不换品牌观感 */
+  --ok: #1a8348;
+  --warn: #b25000;
+  --danger: #d70015;
+
+  /* ---- 表面 / 背景 ---- */
+  /* 白底为主；仅浮动控件用极浅灰做层次（不引入彩色背景） */
+  --bg: #ffffff;
+  --bg-soft: #f7f7f9;
+  --surface: #ffffff;
+  --surface-2: #f5f5f7;
+  --surface-sunken: #fafafa;
+  --bg-elevated: #ffffff; /* 弹窗等浮层实体背景 */
+  --bg-menu: #ffffff; /* 下拉/联想列表 */
+
+  /* ---- 描边（macOS 用发丝分隔线而非重边框）---- */
+  --line: rgba(0, 0, 0, 0.09);
+  --line-strong: rgba(0, 0, 0, 0.16);
+  --line-faint: rgba(0, 0, 0, 0.055);
+
+  /* ---- 文字（三级层次；全部 ≥4.5:1 白底对比）---- */
+  --text: #1d1d1f;
+  --text-dim: #52525b;
+  --text-mute: #6e6e73;
+
+  /* ---- 语义令牌：页面/组件只引用这些，不再逐个写 hex ---- */
+  --fg-strong: #000000;
+  --fg-title: #1d1d1f;
+  --fg-body: #3a3a3c;
+  --fg-quote: #48484a;
+  --fg-on-primary: #ffffff;
+  /* 品牌「填充」与品牌「文字」必须分开：
+     #0a84ff 作为按钮底色/描边够用（UI 组件 ≥3:1），但作为**正文级文字**在白底与
+     浅主色底上只有 3.2~3.7:1，达不到正文 4.5:1。因此单独给一个更深的链接色，
+     而不是把 --primary 整体压深（那会连带改掉按钮的品牌观感）。 */
+  --fg-link: #0060df;
+  --fg-primary-soft: #0071e3;
+  --fg-primary-softer: #0060df;
+  --fg-ok: #106b3a;
+  --fg-warn: #b25000;
+  --fg-danger: #d70015;
+  --fg-info: #0060df;
+  --fg-accent: #0071e3;
+  --fg-primary-pale: #0a84ff;
+  --fg-on-ok: #ffffff;
+  --focus-ring: var(--primary);
+
+  /* ---- 交互填充（替代原来的 rgba(255,255,255,x) 深色写法）---- */
+  --fill-1: rgba(0, 0, 0, 0.024); /* 极轻，静态分区 */
+  --fill-2: rgba(0, 0, 0, 0.045); /* 次级表面 */
+  --fill-3: rgba(0, 0, 0, 0.065); /* hover / 选中 */
+  --fill-4: rgba(0, 0, 0, 0.1); /* 轨道、进度底槽 */
+
+  /* 强调色浅底（chip / 高亮块） */
+  --tint-primary: rgba(10, 132, 255, 0.1);
+  --tint-primary-strong: rgba(10, 132, 255, 0.16);
+  --tint-ok: rgba(26, 138, 74, 0.1);
+  --tint-warn: rgba(178, 80, 0, 0.1);
+  --tint-danger: rgba(215, 0, 21, 0.09);
+  --tint-accent: rgba(0, 113, 227, 0.1);
+
+  /* ---- 维度色码（六维评分模型）----
+     每个维度在全站任何位置都是同一个颜色：雷达图轴标签、维度筛选项、
+     逐题分析标签、提升建议标签、错题分类标签。
+     色值全部按白底 ≥4.5:1 正文标准选取，且彼此色相间距足够大
+     （蓝/紫/青绿/橙/洋红/绿），避免"看起来都差不多"。
+     与后端 constants.DIMENSIONS 的 key 一一对应。 */
+  --dim-professional: #1d6fd8;
+  --dim-professional-tint: rgba(29, 111, 216, 0.1);
+  --dim-logic: #8241d8;
+  --dim-logic-tint: rgba(130, 65, 216, 0.1);
+  --dim-expression: #00838f;
+  --dim-expression-tint: rgba(0, 131, 143, 0.1);
+  --dim-matching: #a85500;
+  --dim-matching-tint: rgba(168, 85, 0, 0.1);
+  --dim-adaptability: #c2185b;
+  --dim-adaptability-tint: rgba(194, 24, 91, 0.1);
+  --dim-culture_fit: #2e7d32;
+  --dim-culture_fit-tint: rgba(46, 125, 50, 0.1);
+
+  /* ---- 圆角（macOS 连续圆角观感：比原深色主题更收敛）---- */
+  --r-lg: 16px;
+  --r-md: 12px;
+  --r-sm: 8px;
+  --r-xs: 6px;
+
+  /* ---- 阴影（分层柔和，禁用彩色光晕）---- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.07);
+  --shadow-focus: 0 0 0 3.5px rgba(10, 132, 255, 0.22);
+
+  /* ---- 间距刻度（4/8 节奏，组件与区块统一引用）---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---- 字阶（macOS 正文 13–15px，标题收敛不夸张）---- */
+  --fs-xs: 11.5px;
+  --fs-sm: 12.5px;
+  --fs-base: 13.5px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 22px;
+  --fs-2xl: 26px;
+  --fs-3xl: 40px;
+
+  /* ---- 图标尺寸令牌 ---- */
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 30px;
+
+  /* ---- 层级 ---- */
+  --z-sticky: 40;
+  --z-nav: 60;
+  --z-modal: 80;
+  --z-toast: 90;
+
+  /* ---- 可读行长（大屏长文不再整行铺满 1180px）---- */
+  --measure: 68ch;
+  --measure-tight: 52ch;
+
+  /* ---- 触控目标下限（iOS 44pt / Android 48dp）---- */
+  --tap-min: 44px;
+
+  /* ---- 安全区 ---- */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  /* ---- 字体：macOS 系统字体栈优先 ---- */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* ---- 尺寸 ---- */
+  --nav-h: 56px;
+  --max-w: 1180px;
+
+  /* ==========================================================================
+     体验增强 §13：深色模式所需的主题令牌
+     这些值此前在组件里是硬编码的（白色玻璃底、黑色旋钮、金色奖牌…），
+     在深色下会直接失效（白底面板 / 看不见的黑旋钮），因此统一抽成令牌，
+     只在下面两处定义（浅色 + 深色），组件只引用不再写死。
+
+     ⚠ 这里必须写**真实值**，不能写 `var(--同名)`。
+     `--glass: var(--glass)` 是自引用 → 按 CSS 规范该属性在计算时无效
+     （guaranteed-invalid）→ 引用它的声明整条按 unset 处理：
+     背景变透明、`border` 简写宽度归 0。
+     这一段曾经就是这么写的（深色块有真值、浅色块是自引用），后果是
+     **浅色模式下全站 spinner 不可见、简历优化的进度提示条透明、
+     Toast 没底色、弹层遮罩不遮**，而深色模式一切正常，因此藏了很久。
+    提交前请跑 `python .regress/check_self_ref_tokens.py`。
+     ========================================================================== */
+  /* 半透明玻璃底：sticky 顶栏、Toast、底部操作栏（浅色，取自令牌化之前的字面值） */
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-strong: rgba(255, 255, 255, 0.92);
+  /* 开关/单选/复选框的滑块与对勾 */
+  --knob: #ffffff;
+  --check-mark: #86868b;
+  /* 主按钮按下（ok 态） */
+  --ok-hover: #157a41;
+  /* 骨架屏微光 */
+  --shimmer: rgba(255, 255, 255, 0.7);
+  /* 加载指示器轨道 */
+  --spinner-track: rgba(0, 0, 0, 0.12);
+  /* 页面背景顶部渐变色（首屏层次） */
+  --bg-grad-top: #fbfbfd;
+  /* 模态遮罩 */
+  --scrim: rgba(0, 0, 0, 0.28);
+  --scrim-soft: rgba(0, 0, 0, 0.18);
+  /* 工具栏上方的渐变遮罩（横向滑动提示） */
+  --edge-mask: #000;
+  /* 首页三个模块色（与维度色同一套观感，深浅两套各自取值） */
+  --module-blue: #1d6fd8;
+  --module-blue-tint: rgba(29, 111, 216, 0.11);
+  --module-violet: #8241d8;
+  --module-violet-tint: rgba(130, 65, 216, 0.11);
+  --module-teal: #00838f;
+  --module-teal-tint: rgba(0, 131, 143, 0.11);
+  /* 排行榜奖牌底色（金银铜） */
+  --medal-1-bg: rgba(251, 191, 36, 0.1);
+  --medal-1-line: rgba(202, 138, 4, 0.3);
+  --medal-2-bg: rgba(148, 163, 184, 0.12);
+  --medal-2-line: rgba(100, 116, 139, 0.26);
+  --medal-3-bg: rgba(217, 119, 6, 0.09);
+  --medal-3-line: rgba(180, 83, 9, 0.26);
+  --medal-badge-fg: #8a5a00;
+  --medal-badge-bg: rgba(251, 191, 36, 0.14);
+  --medal-badge-line: rgba(202, 138, 4, 0.28);
+}
+
+/* ==========================================================================
+   体验增强 §13：深色模式
+   只在这里重映射令牌——组件层不需要任何改动（设计系统本来就要求语义令牌优先）。
+   对比度按 WCAG 独立校验（见 .regress/check_contrast.js）：
+   正文 ≥4.5:1、次要文字 ≥3:1，深浅两套主题分别验。
+   触发方式：`<html data-theme="dark">`，由 src/theme.js 统一解析
+   「跟随系统 / 浅色 / 深色」三态偏好后写入，避免出现两套并行的 dark 规则。
+   ========================================================================== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* 强调色在深色底上要提亮：系统蓝 #0a84ff 在白底最佳，深色下用 #409cff 更清晰 */
+  --primary: #409cff;
+  --primary-hover: #6ab1ff;
+  --primary-deep: #0a84ff;
+  --primary-2: #7d7aff;
+  --accent: #409cff;
+
+  /* 状态色改用深色底专用取值（Apple 深色系统色，均在深色底上达标） */
+  --ok: #30d158;
+  --warn: #ff9f0a;
+  --danger: #ff453a;
+
+  /* 表面：近黑分层（底面最暗，浮层最亮，保证层级可辨） */
+  --bg: #0b0b0d;
+  --bg-soft: #101012;
+  --surface: #141416;
+  --surface-2: #1c1c1f;
+  --surface-sunken: #101012;
+  --bg-elevated: #1f1f22;
+  --bg-menu: #1f1f22;
+
+  /* 描边：深色下用白色透明线（黑色线在深底上完全不可见） */
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --line-faint: rgba(255, 255, 255, 0.06);
+
+  /* 文字：三级层次，全部按深色底重新取样 */
+  --text: #f5f5f7;
+  --text-dim: #c7c7cc;
+  --text-mute: #98989d;
+
+  --fg-strong: #ffffff;
+  --fg-title: #f5f5f7;
+  --fg-body: #d8d8dd;
+  --fg-quote: #c7c7cc;
+  --fg-on-primary: #06121f;
+  --fg-link: #6ab1ff;
+  --fg-primary-soft: #6ab1ff;
+  --fg-primary-softer: #409cff;
+  --fg-ok: #30d158;
+  --fg-warn: #ff9f0a;
+  --fg-danger: #ff453a;
+  --fg-info: #409cff;
+  --fg-accent: #409cff;
+  --fg-primary-pale: #409cff;
+  --fg-on-ok: #06120a;
+  --focus-ring: #409cff;
+
+  /* 交互填充：深色下改用白色透明（黑填充在深底上不可见） */
+  --fill-1: rgba(255, 255, 255, 0.035);
+  --fill-2: rgba(255, 255, 255, 0.06);
+  --fill-3: rgba(255, 255, 255, 0.09);
+  --fill-4: rgba(255, 255, 255, 0.14);
+
+  /* 浅底强调块：深色下用低透明度叠加，保持"淡淡的色块"观感 */
+  --tint-primary: rgba(64, 156, 255, 0.16);
+  --tint-primary-strong: rgba(64, 156, 255, 0.24);
+  --tint-ok: rgba(48, 209, 88, 0.16);
+  --tint-warn: rgba(255, 159, 10, 0.16);
+  --tint-danger: rgba(255, 69, 58, 0.16);
+  --tint-accent: rgba(64, 156, 255, 0.16);
+
+  /* 六维色码：浅色版是为白底挑的（对比度 4.5:1），深色底上必须整体提亮，
+     否则雷达图轴标签与维度 chip 会糊成一团。 */
+  --dim-professional: #6ab1ff;
+  --dim-professional-tint: rgba(106, 177, 255, 0.16);
+  --dim-logic: #c79bff;
+  --dim-logic-tint: rgba(199, 155, 255, 0.16);
+  --dim-expression: #4ad4e0;
+  --dim-expression-tint: rgba(74, 212, 224, 0.16);
+  --dim-matching: #f0a95c;
+  --dim-matching-tint: rgba(240, 169, 92, 0.16);
+  --dim-adaptability: #ff7ba8;
+  --dim-adaptability-tint: rgba(255, 123, 168, 0.16);
+  --dim-culture_fit: #6ed17a;
+  --dim-culture_fit-tint: rgba(110, 209, 122, 0.16);
+
+  /* 阴影：深色下黑色阴影几乎不可见，改为更高不透明度 + 更弱扩散 */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-focus: 0 0 0 3.5px rgba(64, 156, 255, 0.3);
+
+  /* 主题相关的结构色 */
+  --glass: rgba(20, 20, 22, 0.82);
+  --glass-strong: rgba(20, 20, 22, 0.94);
+  --knob: #f5f5f7;
+  --check-mark: #98989d;
+  --ok-hover: #28b34c;
+  --shimmer: rgba(255, 255, 255, 0.08);
+  --spinner-track: rgba(255, 255, 255, 0.16);
+  --bg-grad-top: #131315;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --scrim-soft: rgba(0, 0, 0, 0.45);
+  --edge-mask: #000;
+
+  --module-blue: #6ab1ff;
+  --module-blue-tint: rgba(106, 177, 255, 0.16);
+  --module-violet: #c79bff;
+  --module-violet-tint: rgba(199, 155, 255, 0.16);
+  --module-teal: #4ad4e0;
+  --module-teal-tint: rgba(74, 212, 224, 0.16);
+
+  --medal-1-bg: rgba(251, 191, 36, 0.16);
+  --medal-1-line: rgba(251, 191, 36, 0.34);
+  --medal-2-bg: rgba(203, 213, 225, 0.14);
+  --medal-2-line: rgba(203, 213, 225, 0.3);
+  --medal-3-bg: rgba(217, 119, 6, 0.16);
+  --medal-3-line: rgba(240, 160, 90, 0.32);
+  --medal-badge-fg: #ffd479;
+  --medal-badge-bg: rgba(251, 191, 36, 0.18);
+  --medal-badge-line: rgba(251, 191, 36, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  /* 长 URL / 连续英文串不再撑出横向滚动条 */
+  overflow-wrap: break-word;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+/* 统一图标尺寸令牌（--icon-*）定义在 :root，图标尺寸由 icons.jsx 的 size 属性消费 */
+
+/* 页面背景：纯白，极其微弱的顶部灰阶让首屏有层次但不抢内容 */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--bg-grad-top) 0%, var(--bg) 320px);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrim-soft);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrim);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   布局
+   ========================================================================== */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  /* 底部预留固定 tab 栏 + 安全区（刘海/手势条），否则最后一块内容会被导航压住 */
+  padding: var(--space-5) var(--space-4) calc(var(--nav-h) + var(--space-5) + var(--safe-b));
+  padding-left: max(var(--space-4), var(--safe-l));
+  padding-right: max(var(--space-4), var(--safe-r));
+}
+
+.container--flush {
+  padding-bottom: var(--space-5);
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap; /* 375px 小屏下标题与右侧操作换行，避免横向溢出 */
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.page-title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: -0.4px; /* macOS 大标题收紧字距 */
+}
+
+.page-sub {
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  margin-top: var(--space-1);
+  max-width: var(--measure); /* 长副标题不整行铺满 */
+}
+
+/* ==========================================================================
+   图标对齐工具
+   本项目的图标来自 components/icons.jsx（统一 24 viewBox / 1.8 线宽）。
+   ========================================================================== */
+
+/* SVG 作为 flex 子项默认会被压缩，统一禁止 */
+svg {
+  flex: none;
+}
+
+/* 这些标签容器在部分页面是 flex、部分是块级；块级时用基线对齐补齐 */
+.block-label svg,
+.imp-actions-title svg,
+.empty svg {
+  vertical-align: -0.16em;
+}
+
+/* 行内小图标（跟在文案前的小图标）与文字基线对齐，避免把行高顶开 */
+.inline-ic {
+  vertical-align: -0.16em;
+  margin-right: 5px;
+  color: var(--text-mute);
+}
+
+/* 「3 条改进方法」这类标题需要图标与文字横向排布 */
+.imp-actions-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sec-desc {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.muted {
+  color: var(--text-dim);
+}
+.mute-2 {
+  color: var(--text-mute);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* 屏幕阅读器专用文本：视觉隐藏但**不移出无障碍树**。
+   用于「只有颜色差异」的信息（已完成/待完成、评分等级）和异步状态播报，
+   不能让色彩成为唯一信号。.sf-sr 是历史别名，统一在这里定义一份。
+   注意：禁止用 display:none / visibility:hidden 实现——那会一并移出无障碍树。 */
+.sr-only,
+.sf-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* 白底主题下不再用渐变文字（浅色前景在白色上不可读），改为实心主色 */
+.grad-text {
+  color: var(--fg-link);
+}
+.center {
+  text-align: center;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.row--wrap {
+  flex-wrap: wrap;
+}
+.row--between {
+  justify-content: space-between;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.mb-12 {
+  margin-bottom: 12px;
+}
+.mt-8 {
+  margin-top: 8px;
+}
+.mt-12 {
+  margin-top: 12px;
+}
+.mt-16 {
+  margin-top: 16px;
+}
+.mt-24 {
+  margin-top: 24px;
+}
+.gap-8 {
+  gap: 8px;
+}
+.gap-12 {
+  gap: 12px;
+}
+.hide-sm {
+  display: none;
+}
+
+/* ==========================================================================
+   卡片：白色表面 + 发丝描边 + 极轻阴影（macOS 面板观感）
+   ========================================================================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+.card--flat {
+  box-shadow: none;
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 区块序号：macOS 用实心浅灰底 + 主色数字，不做渐变块 */
+.sec-idx {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--r-xs);
+  background: var(--tint-primary);
+  color: var(--fg-link);
+  font-size: 12px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+}
+
+.sub-card {
+  background: var(--surface-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-md);
+  padding: 12px;
+}
+
+/* ==========================================================================
+   按钮：macOS 控件观感（实心主色 / 白色描边次按钮 / 按下缩放）
+   ========================================================================== */
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 0 var(--space-4);
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease,
+    transform 0.12s ease, color 0.16s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  background: var(--primary);
+  color: var(--fg-on-primary);
+  box-shadow: var(--shadow-xs);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+.btn--primary:active:not(:disabled) {
+  background: var(--primary-deep);
+  transform: scale(0.985);
+}
+
+/* 次按钮：白底 + 描边（macOS 默认按钮样式） */
+.btn--ghost {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+.btn--ghost:active:not(:disabled) {
+  background: var(--fill-3);
+  transform: scale(0.985);
+}
+
+.btn--soft {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--text);
+}
+.btn--soft:hover:not(:disabled) {
+  background: var(--fill-3);
+}
+.btn--soft:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn--danger {
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+  color: var(--fg-danger);
+  box-shadow: var(--shadow-xs);
+}
+.btn--danger:hover:not(:disabled) {
+  background: var(--tint-danger);
+  border-color: color-mix(in srgb, var(--danger) 42%, transparent);
+}
+.btn--danger:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn--ok {
+  background: var(--ok);
+  color: var(--fg-on-ok);
+  box-shadow: var(--shadow-xs);
+}
+.btn--ok:hover:not(:disabled) {
+  background: var(--ok-hover);
+}
+.btn--ok:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn--block {
+  width: 100%;
+}
+.btn--lg {
+  min-height: 50px;
+  font-size: 16px;
+  padding: 0 24px;
+  border-radius: var(--r-md);
+}
+.btn--sm {
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-base);
+  /* 视觉保持紧凑，但用透明热区把触控目标补到 44px（不改变布局边界） */
+  position: relative;
+}
+.btn--sm::after {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--fg-link);
+  cursor: pointer;
+  font-size: var(--fs-base);
+  padding: var(--space-2) var(--space-1);
+  min-height: 36px;
+  position: relative;
+}
+.link-btn::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   标签 / 徽标
+   ========================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.6;
+  background: var(--surface-2);
+  border: 1px solid var(--line-faint);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.chip--primary {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--fg-primary-soft);
+}
+.chip--ok {
+  background: var(--tint-ok);
+  border-color: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--fg-ok);
+}
+.chip--warn {
+  background: var(--tint-warn);
+  border-color: color-mix(in srgb, var(--warn) 22%, transparent);
+  color: var(--fg-warn);
+}
+.chip--danger {
+  background: var(--tint-danger);
+  border-color: color-mix(in srgb, var(--danger) 22%, transparent);
+  color: var(--fg-danger);
+}
+.chip--accent {
+  background: var(--tint-accent);
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--fg-accent);
+}
+
+/* 维度色码：给任意元素打上「这是哪个维度」的颜色标记。
+   dim-professional / dim-logic / dim-expression / dim-matching /
+   dim-adaptability / dim-culture-fit（注意 culture_fit → culture-fit） */
+.dim-professional {
+  --dim-c: var(--dim-professional);
+  --dim-c-tint: var(--dim-professional-tint);
+}
+.dim-logic {
+  --dim-c: var(--dim-logic);
+  --dim-c-tint: var(--dim-logic-tint);
+}
+.dim-expression {
+  --dim-c: var(--dim-expression);
+  --dim-c-tint: var(--dim-expression-tint);
+}
+.dim-matching {
+  --dim-c: var(--dim-matching);
+  --dim-c-tint: var(--dim-matching-tint);
+}
+.dim-adaptability {
+  --dim-c: var(--dim-adaptability);
+  --dim-c-tint: var(--dim-adaptability-tint);
+}
+.dim-culture-fit {
+  --dim-c: var(--dim-culture_fit);
+  --dim-c-tint: var(--dim-culture_fit-tint);
+}
+
+/* 维度芯片：浅色底 + 同色描边 + 同色粗体字，一眼区分六个维度 */
+.chip--dim {
+  background: var(--dim-c-tint, var(--surface-2));
+  border-color: color-mix(in srgb, var(--dim-c, var(--line)) 26%, transparent);
+  color: var(--dim-c, var(--text-dim));
+  font-weight: 600;
+}
+
+/* 维度指标条 / 圆点：给任意小元素着色 */
+.dim-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+  background: var(--dim-c, var(--text-mute));
+  display: inline-block;
+}
+
+/* 导航：底部 tab 现在有 6 项（5 个页面 + 账号），窄屏要整体缩一档才不挤 */
+@media (max-width: 480px) {
+  .nav-bottom a,
+  .nav-bottom .nav-account-btn {
+    gap: 1px;
+    min-width: 0;
+  }
+  .nav-bottom a svg,
+  .nav-bottom .nav-account-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+  .nav-bottom a span,
+  .nav-bottom .nav-account-btn span {
+    font-size: 10px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--r-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--line-faint);
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--text-mute);
+}
+.dot--live {
+  background: var(--danger);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 50%, transparent);
+  animation: pulse 1.6s ease-out infinite;
+}
+
+/* ==========================================================================
+   表单
+   ========================================================================== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-label {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.input,
+.textarea,
+.select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  min-height: 44px;
+  color: var(--text);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  font-size: 14px;
+}
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-mute);
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-focus);
+}
+.select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--check-mark) 50%),
+    linear-gradient(135deg, var(--check-mark) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 1px), calc(100% - 13px) calc(50% + 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   iOS 聚焦缩放防护
+   Safari 在**输入框字号 < 16px** 时会强制放大整个页面来聚焦，答完题页面
+   还停在放大状态、需要手动缩回——移动端答题体验最典型的一处硬伤
+   （见 UX 规范「Mobile Keyboards / 表单输入」）。
+   桌面端保留原有 14px 字阶（视觉更紧凑），只在移动端把输入类控件提到 16px。
+   同时用 16px 兜住 textarea —— 它是模拟面试作答的主输入，最常被聚焦。
+   ========================================================================== */
+@media (max-width: 860px) {
+  .input,
+  .textarea,
+  .select {
+    font-size: 16px;
+  }
+  /* 长文本作答时的行长更短，行高同步放宽，避免 16px 下显得拥挤 */
+  .textarea {
+    line-height: 1.65;
+  }
+}
+
+/* 可增删标签输入 */
+.tag-input {
+  display: flex;
+  gap: 8px;
+}
+.tag-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px 3px 10px;
+  border-radius: 999px;
+  background: var(--tint-primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  color: var(--fg-primary-soft);
+  font-size: 12.5px;
+}
+.tag-edit button {
+  background: none;
+  border: none;
+  color: var(--fg-primary-soft);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.tag-edit button:hover {
+  color: var(--fg-primary-softer);
+}
+
+/* 分段选择：macOS segmented control（浅灰槽 + 白色滑块） */
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line-faint);
+}
+.seg button {
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 0 var(--space-4);
+  min-height: 38px;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  font-size: var(--fs-base);
+  font-weight: 500;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+.seg button:hover {
+  color: var(--text);
+}
+.seg button.on {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+/* 选项卡（单/多选） */
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px;
+  min-height: 60px;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.opt:hover {
+  background: var(--surface-sunken);
+  border-color: var(--line-strong);
+}
+.opt.on {
+  border-color: var(--primary);
+  background: var(--tint-primary);
+}
+.opt-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.opt-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.opt-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.opt.on .opt-radio {
+  border-color: var(--primary);
+}
+.opt.on .opt-radio::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* 拖拽上传
+   注意：这是 <label>，默认 display:inline —— 必须显式改为块级 flex，
+   否则边框/内边距按行内盒布局，文案换行时整个框会裂成两块。 */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.dropzone:hover,
+.dropzone.over {
+  border-color: var(--primary);
+  background: var(--tint-primary);
+}
+.dropzone-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px; /* 图标与标题之间的视觉间距（gap 之外再补一点） */
+}
+.dropzone-sub {
+  font-size: 12px;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   骨架屏 / 加载 / 空状态
+   ========================================================================== */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--fill-2);
+  border-radius: var(--r-xs);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--shimmer), transparent);
+  animation: shimmer 1.4s infinite;
+}
+.sk-line {
+  height: 12px;
+  margin-bottom: 8px;
+}
+.sk-line--60 {
+  width: 60%;
+}
+.sk-line--40 {
+  width: 40%;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--spinner-track);
+  border-top-color: var(--text-dim);
+  animation: spin 0.8s linear infinite;
+  flex: none;
+}
+.spinner--primary {
+  border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  border-top-color: var(--primary);
+}
+
+.empty {
+  text-align: center;
+  padding: 34px 18px;
+  color: var(--text-dim);
+}
+.empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 10px;
+}
+.empty-desc {
+  font-size: 13px;
+  color: var(--text-mute);
+  margin-top: 6px;
+}
+
+.alert {
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.alert--warn {
+  border-color: color-mix(in srgb, var(--warn) 24%, transparent);
+  background: var(--tint-warn);
+  color: var(--fg-warn);
+}
+.alert--danger {
+  border-color: color-mix(in srgb, var(--danger) 24%, transparent);
+  background: var(--tint-danger);
+  color: var(--fg-danger);
+}
+.alert--ok {
+  border-color: color-mix(in srgb, var(--ok) 24%, transparent);
+  background: var(--tint-ok);
+  color: var(--fg-ok);
+}
+/* 信息型提示（体验增强用得多：设备自检引导 / 重录披露 / 未完成面试的继续入口）。
+   此前只有 warn/danger/ok 三档，信息型会退回中性灰，层级上说不清"这是提示不是警告"。 */
+.alert--info {
+  border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  background: var(--tint-primary);
+  color: var(--fg-body);
+}
+.alert--info > svg {
+  color: var(--primary);
+  flex: none;
+}
+/* 首页顶部的登录状态条：文案占满剩余宽度，按钮右对齐 */
+.guest-banner {
+  align-items: center;
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+.guest-banner strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+/* ==========================================================================
+   Toast
+   ========================================================================== */
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-h) + var(--space-4) + var(--safe-b));
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(92vw, 420px);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  background: var(--glass);
+  border: 1px solid var(--line-strong);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: var(--shadow);
+  animation: toast-in 0.24s ease;
+}
+.toast--error {
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+  color: var(--fg-danger);
+}
+.toast--success {
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+  color: var(--fg-ok);
+}
+.toast--warn {
+  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+  color: var(--fg-warn);
+}
+.toast--info {
+  color: var(--text);
+}
+
+/* ==========================================================================
+   NavBar：移动端底部 tab / 桌面端顶部（macOS 半透明工具栏）
+   ========================================================================== */
+.nav-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  background: var(--glass);
+  border-top: 1px solid var(--line);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.nav-bottom a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-mute);
+  transition: color 0.16s ease;
+}
+.nav-bottom a svg {
+  width: 21px;
+  height: 21px;
+}
+.nav-bottom a.on {
+  color: var(--fg-link);
+}
+.nav-bottom a.on svg {
+  color: var(--fg-link);
+}
+/* 退出登录按钮要与相邻 tab 完全一致（button 默认样式会破坏布局） */
+.nav-bottom .nav-account-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+.nav-bottom .nav-account-btn svg {
+  width: 21px;
+  height: 21px;
+}
+.nav-bottom .nav-account-btn:hover {
+  color: var(--text);
+}
+
+.nav-top {
+  display: none;
+}
+
+/* ==========================================================================
+   打字机字幕
+   ========================================================================== */
+.subtitle {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 14px 16px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  box-shadow: var(--shadow-xs);
+}
+.subtitle-prev {
+  color: var(--text-mute);
+  font-size: 12.5px;
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.subtitle-now {
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: 0.1px;
+  color: var(--text);
+  min-height: 1.7em;
+}
+.subtitle-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.14em;
+  background: var(--primary);
+  animation: blink-cursor 1s steps(1) infinite;
+}
+.subtitle-dots {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+.subtitle-dots i {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--fill-4);
+  transition: background 0.2s ease;
+}
+.subtitle-dots i.on {
+  background: var(--primary);
+}
+
+/* ==========================================================================
+   Avatar（2D 数字人）动画
+   ========================================================================== */
+.avatar-wrap {
+  position: relative;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+.avatar-svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.av-body {
+  transform-origin: 50% 100%;
+  animation: av-breath 4.6s ease-in-out infinite;
+}
+.av-head {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+  animation: av-nod 7.5s ease-in-out infinite;
+}
+.av-speaking .av-head {
+  animation: av-talk 1.15s ease-in-out infinite;
+}
+.av-speaking .av-body {
+  animation: av-breath 2.8s ease-in-out infinite;
+}
+.av-eyelid {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  transform: scaleY(0);
+  transition: transform 90ms ease-in-out;
+}
+.av-eyelid.closed {
+  transform: scaleY(1);
+}
+.av-mouth {
+  transition: transform 100ms ease-out;
+}
+.av-mouth-shape {
+  transition: opacity 100ms ease-out;
+}
+.av-brow {
+  transition: transform 240ms ease;
+}
+.av-speaking .av-brow {
+  transform: translateY(-2px);
+}
+.av-glow {
+  animation: av-glow 5s ease-in-out infinite;
+}
+/* 页面隐藏（切标签页/最小化）时暂停全部数字人动画。
+   浏览器对后台标签页的合成本身就会降频，但 CSS 动画的时间轴仍在走，
+   切回前台那一下容易出现口型/呼吸的「跳变」；显式暂停后回来是连续接续。 */
+.avatar-svg.av-paused,
+.avatar-svg.av-paused * {
+  animation-play-state: paused !important;
+}
+
+/* 音频波形（数字人降级形态） */
+.wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 96px;
+}
+.wave i {
+  width: 5px;
+  border-radius: 3px;
+  background: var(--primary);
+  transition: height 90ms linear;
+}
+
+/* ==========================================================================
+   雷达图
+   ========================================================================== */
+.radar-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.radar-label {
+  font-size: 11px;
+  fill: var(--text-dim);
+  cursor: pointer;
+  transition: fill 0.2s ease;
+}
+.radar-label.on {
+  fill: var(--primary);
+  font-weight: 700;
+}
+.radar-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.radar-legend i {
+  display: inline-block;
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   折线图（历史进步）
+   ========================================================================== */
+.trend-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.trend-dot {
+  transition: r 0.2s ease;
+  cursor: pointer;
+}
+.trend-dot:hover {
+  r: 6;
+}
+
+/* ==========================================================================
+   动画关键帧
+   ========================================================================== */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 50%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--danger) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 0%, transparent);
+  }
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes blink-cursor {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fade-up 0.3s ease both;
+}
+@keyframes av-breath {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.006);
+  }
+}
+@keyframes av-nod {
+  0%,
+  72%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  78% {
+    transform: rotate(1.4deg) translateY(1.5px);
+  }
+  86% {
+    transform: rotate(-0.8deg) translateY(-0.5px);
+  }
+}
+@keyframes av-talk {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-1.1deg) translateY(-1px);
+  }
+  50% {
+    transform: rotate(0.6deg) translateY(1px);
+  }
+  75% {
+    transform: rotate(-0.4deg) translateY(0);
+  }
+}
+@keyframes av-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+@keyframes ring-pop {
+  from {
+    stroke-dashoffset: var(--ring-from, 999);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ==========================================================================
+   断点约定（全站统一，各页面样式不再各自发明断点）
+   - ≤ 380px    超小屏（iPhone SE / 折叠屏外屏）
+   - 381–699px  手机
+   - 700–859px  平板竖屏（表单与卡片提前两列）
+   - 860–1179px 桌面（顶部导航取代底部 tab）
+   - ≥ 1180px   宽屏（网格补满多列）
+   ========================================================================== */
+
+/* ---- 超小屏：收紧横向留白，杜绝横向滚动 ---- */
+@media (max-width: 380px) {
+  .container {
+    padding-left: max(var(--space-3), var(--safe-l));
+    padding-right: max(var(--space-3), var(--safe-r));
+  }
+  .card {
+    padding: var(--space-3);
+  }
+  .page-title {
+    font-size: var(--fs-xl);
+  }
+  .btn--block {
+    white-space: normal; /* 小屏下长按钮文案可换行，不撑破容器 */
+  }
+}
+
+/* ---- 平板竖屏：两列表单提前生效，留白按级提升 ---- */
+@media (min-width: 700px) {
+  .container {
+    padding-left: max(var(--space-5), var(--safe-l));
+    padding-right: max(var(--space-5), var(--safe-r));
+  }
+  .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---- 平板竖屏：单列页面收窄到可读宽度（1180px 容器会把卡片拉到过宽）---- */
+@media (min-width: 700px) and (max-width: 859px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+/* ==========================================================================
+   桌面端适配（≥ 860px）：macOS 风格顶部工具栏
+   ========================================================================== */
+@media (min-width: 860px) {
+  body {
+    font-size: 15.5px;
+  }
+  .container {
+    /* 桌面没有底部 tab 栏，底部留白按间距刻度给（+ 安全区） */
+    padding: var(--space-6) var(--space-5) calc(var(--space-7) + var(--safe-b));
+  }
+  .card {
+    padding: var(--space-5);
+    border-radius: var(--r-lg);
+  }
+  .page-title {
+    font-size: 28px;
+  }
+  .hide-sm {
+    display: initial;
+  }
+  .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .form-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .nav-bottom {
+    display: none;
+  }
+  /* 顶部工具栏：半透明 + 毛玻璃，滚动时内容从其下方穿过（macOS 标题栏行为） */
+  .nav-top {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-nav);
+    background: var(--glass);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+  .nav-top-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
+  /* 品牌标记：macOS 应用图标观感（连续圆角 + 实心主色） */
+  .nav-brand .logo {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--primary);
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg-on-primary);
+  }
+  .nav-links {
+    display: flex;
+    gap: var(--space-1);
+    margin-left: auto;
+  }
+  .nav-links a {
+    padding: 6px var(--space-3);
+    border-radius: var(--r-xs);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+  .nav-links a:hover {
+    background: var(--fill-2);
+    color: var(--text);
+  }
+  .nav-links a.on {
+    background: var(--tint-primary);
+    color: var(--fg-link);
+    font-weight: 600;
+  }
+  /* 右侧账号区：未登录显示登录按钮，已登录显示昵称 + 退出 */
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: none;
+    margin-left: var(--space-2);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--line);
+  }
+  .nav-user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .nav-login-btn {
+    text-decoration: none;
+  }
+  .toast-wrap {
+    bottom: calc(var(--space-5) + var(--safe-b));
+  }
+}
+
+/* ==========================================================================
+   体验增强 §13：主题切换入口
+   桌面在导航右侧文字按钮；移动端底部 tab 已占满，改用不占位的浮动按钮。
+   ========================================================================== */
+.nav-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.nav-theme:hover {
+  color: var(--text);
+}
+
+.nav-theme-fab {
+  position: fixed;
+  right: var(--space-3);
+  /* 落在底部 tab 栏之上、又不挡内容：给 tab 高度 + 安全区留位 */
+  bottom: calc(var(--nav-h) + var(--safe-b) + var(--space-3));
+  z-index: var(--z-nav);
+  width: var(--tap-min);
+  height: var(--tap-min);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  color: var(--text-dim);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.nav-theme-fab:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.nav-theme-fab:active {
+  background: var(--fill-3);
+}
+/* 桌面端已有导航栏里的切换按钮，浮动按钮只在窄屏出现 */
+@media (min-width: 860px) {
+  .nav-theme-fab {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-theme-fab {
+    transition: none;
+  }
+}

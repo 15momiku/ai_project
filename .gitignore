@@ -1,0 +1,38 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# ---- 环境变量（含密钥，禁止提交）----
+# 注意：`.env` 这一条同时覆盖仓库根目录的 .env（云端部署的 SITE_ADDRESS）
+# 与 backend/.env（生产密钥），两处都不要提交。
+.env
+backend/.env.production
+.env.production
+
+# ---- 部署备份产物（含全量用户数据，禁止提交）----
+deploy/backups/
+
+# ---- 运行期数据 ----
+# 整个 data/ 都是运行期产物（数据库、用户上传的简历原件、TTS 音频缓存、
+# 迁移备份），一律不入库；注意与仓库内被提交的 backend/app/data/companies.json
+# （内置公司画像，属于代码资产）区分开。
+backend/data/
+*.sqlite3
+
+# ---- 前端 ----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- 本地回归基线（体验增强改造期间的行为快照，不入库）----
+.regress/

@@ -1,0 +1,253 @@
+/* ===== 首页（功能入口页）=====
+   macOS 风格：纯白背景、克制的标题字重、以留白而非装饰建立层次。
+   页面只放「本项目自己的功能」：页头 + 六卡功能矩阵 + 我的面试报告。
+   竞品对比表、运行状态条、四步叙事、六维模型说明已按需求移除，
+   对应的 .flow-* / .compare-* / .dim-* / .runtime-bar 规则也一并删掉，
+   不留「看起来还在用」的死样式。 */
+
+/* ---------------- 页头 ---------------- */
+.home-head {
+  padding: 18px 0 4px;
+}
+
+.home-title {
+  /* 平滑缩放：固定像素在 481–859px 区间会占满首屏，把 CTA 挤出可视区 */
+  font-size: clamp(28px, 5.6vw, 42px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -1.2px; /* macOS 大标题显著收紧字距 */
+}
+
+.home-sub {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-top: 12px;
+  max-width: 640px;
+  line-height: 1.8;
+}
+
+.home-foot {
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------------- 通用区块标题 ---------------- */
+.sec-block {
+  margin-top: var(--space-7);
+}
+
+.sec-head {
+  margin-bottom: var(--space-4);
+}
+
+/* ---------------- 模块图标与色调 ----------------
+   每个模块一个色相，配合矢量图标把「这是哪一块」做成一眼可辨。 */
+.module-icon {
+  width: var(--space-7);
+  height: var(--space-7);
+  flex: none;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  background: var(--module-tint, var(--tint-primary));
+  color: var(--module-c, var(--primary));
+}
+.tone-blue {
+  --module-c: var(--module-blue);
+  --module-tint: var(--module-blue-tint);
+}
+.tone-violet {
+  --module-c: var(--module-violet);
+  --module-tint: var(--module-violet-tint);
+}
+.tone-teal {
+  --module-c: var(--module-teal);
+  --module-tint: var(--module-teal-tint);
+}
+
+/* ==========================================================================
+   功能矩阵：**严格 N×M**
+
+   卡片数固定为 6，靠下面三条断点规则保证任何宽度都是完整矩形：
+     · ≥860px  → 3 列 × 2 行
+     · ≥700px  → 2 列 × 3 行
+     · <700px  → 1 列 × 6 行
+   因此永远不会有「最后一行只有一张卡」的残缺排布。卡片用 flex 纵向排，
+   `.feat-items` 吃掉剩余高度，让每行卡片的入口按钮底部对齐。
+   ========================================================================== */
+.feat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.feat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0; /* 长文本不撑破网格单元 */
+  height: 100%; /* 同一行卡片等高 */
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.feat-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow);
+}
+
+.feat-head {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.feat-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.feat-desc {
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  margin-top: 2px;
+}
+
+.feat-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+.feat-items li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.feat-tick {
+  color: var(--ok);
+  flex: none;
+  margin-top: 3px;
+}
+.feat-items strong {
+  color: var(--text);
+  font-weight: 600;
+}
+/* 说明另起一行：中文功能名长短差异大，跟在名称后面会挤成参差不齐的锯齿 */
+.feat-item-desc {
+  display: block;
+  color: var(--text-mute);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.feat-cta {
+  align-self: flex-start;
+  margin-top: auto; /* 与上面 flex:1 配合，入口统一贴底 */
+}
+.feat-cta-note {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  display: inline-flex;
+  align-items: center;
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   我的面试报告（首页的报告入口）
+   报告按场次生成，答完自动跳转是入口之一；离开报告页后必须还能回来，
+   因此首页给出最近若干场的常驻列表。行内只用语义令牌，触控目标 ≥44px。
+   ========================================================================== */
+.report-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.report-item:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow);
+}
+
+.report-date {
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* 岗位名占剩余宽度，过长截断而不是把按钮挤走 */
+.report-job {
+  flex: 1 1 140px;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-score {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--fg-link);
+}
+
+.report-item .btn {
+  flex: none;
+  margin-left: auto;
+}
+
+/* 断点与全局约定对齐（700 / 860） */
+@media (min-width: 700px) {
+  .feat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 860px) {
+  .home-head {
+    padding: var(--space-6) 0 var(--space-2);
+  }
+  .home-sub {
+    font-size: 16px;
+  }
+  /* 3 列 × 2 行：六张卡正好铺满两行 */
+  .feat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sec-block {
+    margin-top: var(--space-8);
+  }
+}
+
+/* 窄屏：日期/分数/按钮一行，岗位名换行占满，避免挤成一团 */
+@media (max-width: 520px) {
+  .report-item {
+    gap: 8px 10px;
+  }
+  .report-job {
+    order: -1;
+    flex-basis: 100%;
+  }
+}

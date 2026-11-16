@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 机器可读的项目标识：启动脚本据此确认「这个端口上跑的确实是本项目的前端」。
+         同级目录的另一个项目默认也监听 8000，只看「HTTP 有响应」会把它的页面当成我们的。
+         刻意用纯 ASCII：FastAPI/静态服务器都不保证 Content-Type 带 charset，
+         中文标题在 Windows PowerShell 5.1 里会被按 Latin-1 解码而比对失败。 -->
+    <meta name="application-name" content="ai_project" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0b0d" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="description"
+      content="校招全流程助手 —— 面向在校生的求职全流程工具：共享岗位库与投递统计 · ATS 检测与简历润色 · 数字人模拟面试 · 六维结构化评分报告"
+    />
+    <title>校招全流程助手 · 找岗 改简历 练面试 复盘</title>
+    <script>
+      /* 体验增强 §13：首帧之前就把主题写到 <html> 上，避免深色用户先看到一帧白屏。
+         逻辑与 src/theme.js 的 resolveTheme 完全一致（system 由 matchMedia 解析）。 */
+      ;(function () {
+        try {
+          var pref = localStorage.getItem('aic_theme') || 'system'
+          var dark =
+            pref === 'dark' ||
+            (pref !== 'light' &&
+              window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

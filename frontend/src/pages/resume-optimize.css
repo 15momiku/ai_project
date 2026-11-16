@@ -1,0 +1,673 @@
+/* ==========================================================================
+   简历优化页（ResumeOptimize.jsx）
+   视觉语言**统一到本项目的 macOS 白色主题**：不用「紫色渐变 + 彩色光晕 +
+   emoji 图标」那类做法，一律改用 global.css 的语义令牌、发丝描边、
+   实心主色按钮与矢量图标。
+   本文件不写任何硬编码 hex —— 颜色一律引用语义/维度令牌。
+   ========================================================================== */
+
+/* ---- 每类经历的强调色：直接复用全局的「六维」色令牌，保持全站色相体系一致 ---- */
+.ro-item {
+  --ro-accent: var(--dim-professional);
+  --ro-accent-tint: var(--dim-professional-tint);
+}
+.ro-item.tone-blue {
+  --ro-accent: var(--dim-professional);
+  --ro-accent-tint: var(--dim-professional-tint);
+}
+.ro-item.tone-teal {
+  --ro-accent: var(--dim-expression);
+  --ro-accent-tint: var(--dim-expression-tint);
+}
+.ro-item.tone-violet {
+  --ro-accent: var(--dim-logic);
+  --ro-accent-tint: var(--dim-logic-tint);
+}
+.ro-item.tone-magenta {
+  --ro-accent: var(--dim-adaptability);
+  --ro-accent-tint: var(--dim-adaptability-tint);
+}
+.ro-item.tone-amber {
+  --ro-accent: var(--dim-matching);
+  --ro-accent-tint: var(--dim-matching-tint);
+}
+
+/* ==========================================================================
+   表单
+   ========================================================================== */
+.ro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ro-field .field-label {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.ro-hint {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-mute);
+}
+
+/* 栅格：小屏单列 → 平板两列 → 桌面按需三/四列，规则与全站断点一致 */
+.ro-grid-3,
+.ro-grid-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 560px) {
+  .ro-grid-3,
+  .ro-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 860px) {
+  .ro-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ro-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   可增删的经历 / 荣誉条目
+   ========================================================================== */
+.ro-item {
+  position: relative;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ro-accent);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.ro-item:hover {
+  border-color: var(--line-strong);
+  border-left-color: var(--ro-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.ro-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: 12px;
+}
+/* 条目序号：浅色底 + 该条目的强调色，与左侧色条呼应（不用 emoji） */
+.ro-item-no {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ro-accent);
+  background: var(--ro-accent-tint);
+}
+.ro-item-del {
+  color: var(--fg-danger);
+  border-color: color-mix(in srgb, var(--danger) 22%, transparent);
+}
+.ro-item-del:hover:not(:disabled) {
+  background: var(--tint-danger);
+}
+
+/* 「添加一条」：虚线边框的次级动作，与实心主按钮区分开 */
+.ro-add {
+  width: 100%;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  color: var(--text-dim);
+}
+.ro-add:hover:not(:disabled) {
+  border-color: var(--fg-link);
+  color: var(--fg-link);
+  background: var(--tint-primary);
+}
+
+.ro-empty {
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  color: var(--text-mute);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ==========================================================================
+   技能标签
+   ========================================================================== */
+.ro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.ro-chips-label {
+  font-size: 11.5px;
+  color: var(--text-mute);
+}
+.ro-chip-btn {
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 34px;
+  padding: 4px 10px;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.ro-chip-btn:hover {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--fg-primary-soft);
+}
+
+/* ==========================================================================
+   证件照
+   ========================================================================== */
+.ro-photo-upload {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-faint);
+}
+.ro-photo-preview {
+  flex: none;
+  width: 94px; /* 一寸 25mm ≈ 94px @96dpi */
+  height: 132px; /* 35mm ≈ 132px */
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.ro-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ro-photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--text-mute);
+}
+.ro-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1;
+}
+/* <label> 包着隐藏的 file input，默认是行内盒，这里让它和 .btn 完全一致 */
+.ro-file-btn {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   底部操作栏（吸底）
+   移动端要避开固定底部导航，否则按钮会被导航压住
+   ========================================================================== */
+.ro-actionbar {
+  position: sticky;
+  bottom: calc(var(--nav-h) + var(--space-3) + var(--safe-b));
+  z-index: var(--z-sticky);
+  margin-top: var(--space-5);
+}
+.ro-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.ro-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+/* 两个模板用主色/次强调色区分，不做彩色渐变光晕 */
+.ro-dl-1 {
+  color: var(--fg-primary-soft);
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+}
+.ro-dl-2 {
+  color: var(--dim-logic);
+  border-color: color-mix(in srgb, var(--dim-logic) 28%, transparent);
+}
+.ro-dl-2:hover:not(:disabled) {
+  background: var(--dim-logic-tint);
+}
+
+/* 长耗时操作的进度提示：贴在操作栏下方，明确告知「在跑、别关页面」 */
+.ro-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: 10px var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ==========================================================================
+   ATS 报告
+   ========================================================================== */
+.ro-ats {
+  scroll-margin-top: calc(var(--nav-h) + var(--space-4));
+}
+.ro-ats-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+.ro-ats-score {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--fg-title);
+}
+.ro-ats-score span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-mute);
+}
+.ro-ats-grade {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.ro-ats-grade.ro-band-good {
+  color: var(--fg-ok);
+}
+.ro-ats-grade.ro-band-fair {
+  color: var(--fg-warn);
+}
+.ro-ats-grade.ro-band-poor {
+  color: var(--fg-danger);
+}
+.ro-ats-summary {
+  margin-top: var(--space-3);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-faint);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--r-sm);
+}
+
+.ro-modules {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.ro-module {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+.ro-module-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.ro-module-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+.ro-module-level {
+  font-weight: 600;
+}
+.ro-module-score {
+  margin-left: auto;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.ro-module-desc {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.ro-module-summary {
+  margin-bottom: 2px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+/* 分档配色：模块分数 / 进度条 / 档位徽章 */
+.ro-band-good .ro-module-score {
+  color: var(--fg-ok);
+}
+.ro-band-fair .ro-module-score {
+  color: var(--fg-warn);
+}
+.ro-band-poor .ro-module-score {
+  color: var(--fg-danger);
+}
+.ro-band-good .ro-module-level {
+  background: var(--tint-ok);
+  border-color: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--fg-ok);
+}
+.ro-band-fair .ro-module-level {
+  background: var(--tint-warn);
+  border-color: color-mix(in srgb, var(--warn) 22%, transparent);
+  color: var(--fg-warn);
+}
+.ro-band-poor .ro-module-level {
+  background: var(--tint-danger);
+  border-color: color-mix(in srgb, var(--danger) 22%, transparent);
+  color: var(--fg-danger);
+}
+
+.ro-bar {
+  height: 6px;
+  margin: 12px 0;
+  border-radius: 999px;
+  background: var(--fill-4);
+  overflow: hidden;
+}
+.ro-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ro-band-good .ro-bar > i {
+  background: var(--ok);
+}
+.ro-band-fair .ro-bar > i {
+  background: var(--warn);
+}
+.ro-band-poor .ro-bar > i {
+  background: var(--danger);
+}
+
+.ro-list-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-mute);
+}
+.ro-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.ro-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+/* 用 CSS 画的方块/圆点做项目符号，不依赖 emoji 字形 */
+.ro-list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.75;
+}
+/* 正文文案保持深色，只让项目符号着色：整段彩色文字会显著降低可读性 */
+.ro-list--issue li::before {
+  background: var(--danger);
+  opacity: 1;
+}
+.ro-list--tip li::before {
+  background: var(--primary);
+  opacity: 1;
+}
+.ro-list--ok li::before {
+  background: var(--ok);
+  opacity: 1;
+}
+
+.ro-suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.ro-suggestions li {
+  position: relative;
+  padding: 11px 14px 11px 38px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--r-sm);
+}
+.ro-suggestions li::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 17px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.ro-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+/* ==========================================================================
+   响应式收尾
+   ========================================================================== */
+@media (max-width: 560px) {
+  .ro-item {
+    padding: 12px;
+  }
+  .ro-item-head {
+    flex-wrap: wrap;
+  }
+  .ro-toolbar .btn {
+    flex: 1 1 auto;
+  }
+  .ro-downloads {
+    margin-left: 0;
+    width: 100%;
+  }
+  .ro-downloads .btn {
+    flex: 1 1 auto;
+  }
+  .ro-module-score {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* 桌面端没有底部导航，吸底栏贴到安全距离即可 */
+@media (min-width: 860px) {
+  .ro-actionbar {
+    bottom: var(--space-4);
+  }
+  .ro-ats {
+    scroll-margin-top: var(--space-6);
+  }
+}
+
+/* ==========================================================================
+   体验增强 §11：JD 关键词覆盖率 + 润色改动对照
+   ========================================================================== */
+
+/* ---- 覆盖率看板 ---- */
+.ro-coverage {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.ro-kw-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--fs-sm);
+}
+/* 缺失词做成「词 + 内嵌小按钮」的胶囊，按钮热区 ≥44px 且不撑破胶囊 */
+.ro-kw-miss {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 4px;
+}
+.ro-kw-add {
+  border: 0;
+  border-radius: var(--r-xs);
+  padding: 2px 6px;
+  background: var(--surface);
+  color: var(--fg-primary-soft);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s ease;
+}
+.ro-kw-add::after {
+  content: '';
+  position: absolute;
+  inset: -12px -6px;
+}
+.ro-kw-add:hover {
+  background: var(--tint-primary);
+}
+.ro-kw-add:active {
+  background: var(--fill-3);
+}
+.ro-coverage-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+/* ---- 改动对照：左右分栏，窄屏自动堆叠 ---- */
+.ro-diff-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ro-diff {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.ro-diff.is-reverted {
+  border-left-color: var(--ok);
+  opacity: 0.75;
+}
+.ro-diff-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.ro-diff-label {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+.ro-diff-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.ro-diff-col {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  min-width: 0;
+}
+.ro-diff-col p {
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--text-dim);
+  word-break: break-word;
+}
+.ro-diff-col--after {
+  background: var(--tint-ok);
+}
+.ro-diff-col--after p {
+  color: var(--text);
+}
+.ro-diff-col-k {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+
+@media (max-width: 700px) {
+  .ro-diff-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ro-kw-add {
+    transition: none;
+  }
+}

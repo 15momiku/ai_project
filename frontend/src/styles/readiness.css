@@ -1,0 +1,157 @@
+/* ==========================================================================
+   首页「准备度清单」（体验增强 §1）
+   全部走语义令牌；触控目标 ≥44px；按压态只变色不改布局；动效遵循 reduced-motion
+   ========================================================================== */
+
+/* 屏幕阅读器专用文本 .sr-only 已统一到 global.css（全站一份） */
+
+
+.readiness {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+}
+.readiness--done {
+  padding: var(--space-4) var(--space-5);
+  border-color: color-mix(in srgb, var(--ok) 28%, transparent);
+  background: var(--tint-ok);
+}
+.readiness-done-line {
+  color: var(--text);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+.readiness-done-line svg {
+  color: var(--ok);
+}
+
+.readiness-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.readiness-title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.readiness-sub {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  max-width: var(--measure-tight);
+  line-height: 1.6;
+}
+.readiness-head-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+.readiness-dismiss {
+  font-size: var(--fs-sm);
+}
+.readiness-count {
+  flex: none;
+}
+
+.readiness-list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.readiness-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  min-height: 56px;
+}
+.readiness-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-mute);
+}
+.readiness-item.is-done .readiness-mark {
+  background: var(--tint-ok);
+  color: var(--ok);
+}
+.readiness-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.readiness-item-title {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+.readiness-item-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  line-height: 1.5;
+}
+.readiness-item.is-done .readiness-item-title {
+  color: var(--text-dim);
+}
+
+.readiness-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+.readiness-why {
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  min-width: 0;
+}
+
+/* 触控热区补齐（视觉紧凑但可点区域 ≥44px），按压不改变布局边界 */
+.readiness-item .btn {
+  position: relative;
+  flex: none;
+}
+.readiness-item .btn::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+
+@media (max-width: 560px) {
+  .readiness {
+    padding: var(--space-4);
+  }
+  .readiness-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .readiness-foot .row {
+    width: 100%;
+  }
+  .readiness-foot .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readiness,
+  .readiness--done {
+    animation: none;
+  }
+}

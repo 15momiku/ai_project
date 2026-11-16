@@ -1,0 +1,715 @@
+/* ==========================================================================
+   面试前设备自检弹窗（DeviceCheck.jsx · 设计文档 §3）
+
+   约定：
+   - 颜色/间距/字阶全部走 global.css 的语义令牌，本文件不出现任何 hex；
+   - 所有动效都配 @media (prefers-reduced-motion: reduce) 关闭；
+   - 触控目标 ≥ 44px（--tap-min），:active 只改背景/颜色，不改尺寸与边框。
+   ========================================================================== */
+
+.dc-mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + var(--safe-b));
+  /* 遮罩：用前景色的高比例混合，保证弹窗内容对比度足够（语义令牌，不写 hex） */
+  background: color-mix(in srgb, var(--fg-strong) 46%, transparent);
+}
+
+.dc-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: min(88vh, 760px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  animation: dc-in 0.2s ease-out;
+}
+
+.dc-sheet:focus {
+  outline: none;
+} /* 弹窗自身只是焦点兜底，不画焦点环 */
+
+@keyframes dc-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+
+/* ---------------------------------------------------------------- 头部 */
+
+.dc-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.dc-head-ico {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--tint-primary);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+}
+
+.dc-head-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dc-title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+.dc-privacy {
+  margin: var(--space-1) 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  line-height: 1.5;
+}
+
+/* 关闭：44×44 触控目标；按下只换底色，不改尺寸/边框 */
+.dc-x {
+  flex: none;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin: -6px -6px 0 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-mute);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.dc-x:hover {
+  background: var(--fill-2);
+  color: var(--text);
+}
+.dc-x:active {
+  background: var(--fill-3);
+}
+.dc-x:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ 步骤指示 */
+
+.dc-steps {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-1);
+}
+
+.dc-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  text-align: center;
+  min-width: 0;
+}
+
+.dc-step-dot {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--surface-2);
+  color: var(--text-mute);
+  border: 1px solid var(--line-faint);
+}
+.dc-step.is-ok .dc-step-dot {
+  background: var(--tint-ok);
+  color: var(--ok);
+  border-color: transparent;
+}
+.dc-step.is-warn .dc-step-dot {
+  background: var(--tint-warn);
+  color: var(--warn);
+  border-color: transparent;
+}
+.dc-step.is-now .dc-step-dot {
+  background: var(--primary);
+  color: var(--fg-on-primary);
+  border-color: transparent;
+  box-shadow: var(--shadow-focus);
+}
+
+.dc-step-label {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.dc-step.is-now .dc-step-label {
+  color: var(--text);
+  font-weight: 600;
+}
+.dc-step.is-ok .dc-step-label {
+  color: var(--text-dim);
+}
+
+/* ----------------------------------------------------------------- 主体 */
+
+.dc-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4) 0 var(--space-3);
+}
+
+.dc-step-head {
+  margin-bottom: var(--space-3);
+}
+
+.dc-step-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 650;
+  color: var(--text);
+}
+
+.dc-step-desc {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.dc-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dc-lead {
+  margin: 0;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------- 能力探针列表 */
+
+.dc-probe-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.dc-probe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-faint);
+  min-height: var(--tap-min);
+}
+.dc-probe:last-child {
+  border-bottom: 0;
+}
+
+.dc-probe-ico {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--text-mute);
+}
+.dc-probe.is-ok .dc-probe-ico {
+  color: var(--ok);
+}
+.dc-probe.is-bad .dc-probe-ico {
+  color: var(--warn);
+}
+
+.dc-probe-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dc-probe-name {
+  font-size: var(--fs-base);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.dc-probe-tip {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  line-height: 1.45;
+}
+
+.dc-probe-val {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.dc-probe.is-ok .dc-probe-val {
+  color: var(--ok);
+}
+.dc-probe.is-bad .dc-probe-val {
+  color: var(--warn);
+}
+.dc-probe.is-wait .dc-probe-val {
+  color: var(--text-mute);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------- 提示盒子 */
+
+.dc-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-faint);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+}
+.dc-box > svg,
+.dc-box > .dc-spin {
+  flex: none;
+  margin-top: 2px;
+}
+
+.dc-box--ok {
+  background: var(--tint-ok);
+  border-color: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--fg-ok);
+}
+.dc-box--warn {
+  background: var(--tint-warn);
+  border-color: color-mix(in srgb, var(--warn) 22%, transparent);
+  color: var(--fg-warn);
+}
+.dc-box--info {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--text-dim);
+}
+.dc-box--wait {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--text-dim);
+}
+.dc-box--ask {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--fg-primary-soft);
+}
+.dc-box--degrade {
+  background: var(--tint-warn);
+  border-color: color-mix(in srgb, var(--warn) 26%, transparent);
+  color: var(--fg-warn);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------- 文字模式高亮块 */
+
+.dc-textmode {
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--tint-primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+.dc-textmode-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-md);
+  font-weight: 650;
+  color: var(--text);
+}
+
+.dc-textmode p {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* 「文字模式」四个字高亮：浅底 + 主色字，明确告诉用户该点哪里 */
+.dc-tm-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  background: var(--surface);
+  color: var(--fg-primary-soft);
+  font-weight: 700;
+  box-shadow: var(--shadow-xs);
+}
+
+/* --------------------------------------------------- 权限手动开启步骤 */
+
+.dc-auth {
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+
+.dc-auth-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dc-auth-list {
+  margin: var(--space-2) 0 0;
+  padding-left: 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.dc-auth-more {
+  margin-top: var(--space-3);
+  border-top: 1px dashed var(--line-strong);
+  padding-top: var(--space-2);
+}
+
+.dc-auth-more > summary {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-base);
+  color: var(--fg-link);
+  cursor: pointer;
+  list-style: none;
+}
+.dc-auth-more > summary::-webkit-details-marker {
+  display: none;
+}
+/* 展开/收起用文字而不是箭头符号：结构图标只从 icons.jsx 取，不在这里另造 */
+.dc-auth-more > summary::after {
+  content: '展开';
+  margin-left: auto;
+  padding-left: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+.dc-auth-more[open] > summary::after {
+  content: '收起';
+}
+.dc-auth-more > summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+.dc-auth-other {
+  margin-top: var(--space-2);
+}
+.dc-auth-other-name {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ------------------------------------------------------------ 音量检测 */
+
+.dc-meter-wrap {
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.dc-meter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dc-meter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dc-meter-pct {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.dc-meter {
+  position: relative;
+  height: 14px;
+  margin-top: var(--space-3);
+  border-radius: 999px;
+  background: var(--fill-4);
+  overflow: hidden;
+}
+
+.dc-meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.08s linear;
+}
+/* 正在监听：填充换成成功色（颜色只是辅助，文字提示才是主信号） */
+.dc-meter-wrap.is-live .dc-meter-fill {
+  background: var(--ok);
+}
+
+/* 说话阈值刻度：过了这条线才算「检测到声音」 */
+.dc-meter-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--warn);
+  opacity: 0.75;
+}
+
+.dc-meter-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+
+.dc-meter-hint {
+  margin-top: var(--space-2);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--text-dim);
+  min-height: 1.5em;
+}
+.dc-meter-hint.is-listening {
+  color: var(--fg-primary-soft);
+  font-weight: 500;
+}
+.dc-meter-hint.is-ok {
+  color: var(--fg-ok);
+  font-weight: 600;
+}
+.dc-meter-hint.is-silent {
+  color: var(--fg-warn);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ 通用小行 */
+
+.dc-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dc-row-note {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+
+/* ------------------------------------------------------------ 结论页 */
+
+.dc-summary-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  font-size: var(--fs-md);
+  font-weight: 650;
+  line-height: 1.5;
+  letter-spacing: -0.1px;
+  background: var(--tint-ok);
+  border: 1px solid color-mix(in srgb, var(--ok) 24%, transparent);
+  color: var(--fg-ok);
+}
+.dc-summary-line.is-warn {
+  background: var(--tint-warn);
+  border-color: color-mix(in srgb, var(--warn) 24%, transparent);
+  color: var(--fg-warn);
+}
+.dc-summary-ico {
+  flex: none;
+  margin-top: 1px;
+}
+.dc-summary-text {
+  overflow-wrap: anywhere;
+}
+
+.dc-summary-note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  line-height: 1.55;
+}
+
+.dc-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--line-faint);
+  padding-top: var(--space-3);
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.dc-legend b {
+  color: var(--text);
+  margin-right: var(--space-2);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------- 底部栏 */
+
+.dc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-faint);
+}
+
+.dc-skip {
+  text-align: left;
+}
+
+.dc-foot-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+
+.dc-foot-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* ------------------------------------------------------------- 加载圈 */
+
+.dc-spin {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--primary);
+  animation: dc-spin 0.8s linear infinite;
+}
+
+@keyframes dc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------- 小屏 / 底部抽屉 */
+
+@media (max-width: 560px) {
+  .dc-mask {
+    place-items: end stretch;
+    padding: 0;
+  }
+  .dc-sheet {
+    max-width: none;
+    max-height: 92vh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: 0;
+    padding: var(--space-4) var(--space-4) calc(var(--space-4) + var(--safe-b));
+  }
+  .dc-title {
+    font-size: var(--fs-md);
+  }
+  .dc-foot-right {
+    width: 100%;
+  }
+  .dc-foot-right > .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* --------------------------------------------------------- 减少动效 */
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-sheet {
+    animation: none;
+  }
+  .dc-spin {
+    animation: none;
+  }
+  .dc-meter-fill {
+    transition: none;
+  }
+  .dc-x {
+    transition: none;
+  }
+}

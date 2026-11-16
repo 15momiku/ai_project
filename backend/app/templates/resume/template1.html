@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="{{ labels.html_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ labels.doc_title }} - {{ name }}</title>
+    <style>
+        /* ============================================================
+           模板1：简约高端商务风格（A4 单页）
+           主色深蓝 #1e3a8a，点缀浅金 #c9a227，白底，理工科技术岗取向。
+           内容板块与模板2 共用 templates/_sections.html。
+           ============================================================ */
+        /* ============================================================
+           细线宽度一律写 px，不写 em —— 「内容多时框线消失」的修复：
+           长简历会被后端把基准字号压到 10.5px，此时 0.06em 只有 0.63px，
+           再乘上 wkhtmltopdf 的 smart shrinking 缩放后不足 0.4pt，Qt 取整
+           会直接丢掉整条边（整页外框、板块标题下的贯穿细线会一起消失）。
+           1px 不随字号缩放，但任何字号下都画得出来。粗装饰线（双色分割条
+           的 0.14em 蓝线、技能标签的 0.18em 金线）仍保持 em 等比缩放。
+           ============================================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            /* 注意：不要改用 "Microsoft YaHei"，Qt 会合成“假粗体”（同一字形重复绘制），
+               导致导出的 PDF 复制/ATS 解析出来是「张张三三」。YaHei UI 能命中真正的粗体字面。
+               同理也不用宋体/黑体做艺术字——它们没有真粗体，会被合成。 */
+            font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC",
+                         "Source Han Sans SC", "Noto Sans CJK SC", "WenQuanYi Micro Hei",
+                         Arial, sans-serif;
+            background: #fff;
+            color: #1f2937;
+            /* 全篇字号由 base_font 统一驱动（后端自适应一整页时在 10.5~20px 之间调节），
+               其余尺寸一律写成 em，随它等比伸缩 */
+            font-size: {{ base_font|default(20) }}px;
+            line-height: 1.55;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ===== 蓝色细大框线：整页外框 ===== */
+        .page {
+            /* 1px 而非 0.06em：缩到最小字号后 em 值不足 1pt，整条外框会被丢掉 */
+            border: 1px solid #1e3a8a;
+            padding: 1em 1.1em 1.1em;
+        }
+
+        /* ===== 顶部标题区 ===== */
+        .top { display: table; width: 100%; table-layout: fixed; }
+        .top-main { display: table-cell; vertical-align: middle; padding-right: 1em; }
+        .top-icons {
+            display: table-cell;
+            width: 4.4em;
+            vertical-align: middle;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .top-photo { display: table-cell; width: 5.3em; vertical-align: top; text-align: right; }
+
+        .doc-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #1e3a8a;
+            letter-spacing: 0.18em;
+            line-height: 1.25;
+        }
+        .doc-title-en {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 0.34em;
+            font-weight: normal;
+            color: #c9a227;
+            letter-spacing: 0.1em;
+            margin-left: 1.1em;
+        }
+        .slogan {
+            margin-top: 0.32em;
+            font-size: 0.86em;
+            color: #64748b;
+            letter-spacing: 0.14em;
+        }
+
+        /* 三个简约金色圆形图标（环形 + 圆心） */
+        .gold-dot {
+            position: relative;
+            display: inline-block;
+            width: 0.72em;
+            height: 0.72em;
+            margin-left: 0.4em;
+            border: 1px solid #c9a227;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+        .gold-dot::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0.22em;
+            height: 0.22em;
+            margin: -0.11em 0 0 -0.11em;
+            background: #c9a227;
+            border-radius: 50%;
+        }
+
+        /* 证件照：一寸 25×35mm，方形边框 */
+        .photo {
+            display: block;
+            width: 4.7em;
+            height: 6.6em;
+            margin-left: auto;
+            border: 1px solid #1e3a8a;
+            background: #f7f9fc;
+        }
+
+        /* ===== 顶部装饰分割条：蓝色 + 浅金色双色线条 ===== */
+        .top-rule { margin: 0.55em 0 0.9em; }
+        .rule-blue { height: 0.14em; background: #1e3a8a; }
+        .rule-gold { height: 1px; margin-top: 0.06em; background: #c9a227; }
+
+        /* ===== 板块标题：深蓝底只包住标题文字，底部再延伸一条贯穿整行的细蓝线 ===== */
+        .section { margin-bottom: 0.85em; }
+        .section:last-child { margin-bottom: 0; }
+        .section-head {
+            position: relative;
+            line-height: 0;          /* 去掉行内基线间隙，让标题块紧贴下面的细线 */
+            margin-bottom: 0.5em;
+        }
+        /* 从深蓝块的底部贯穿整行的一条细蓝线 */
+        .section-head::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* 同样固定 1px：这块是缩到最小字号时最先消失的细线之一 */
+            height: 1px;
+            background: #1e3a8a;
+        }
+        .section-title {
+            position: relative;
+            display: inline-block;   /* 关键：底宽=文字宽，蓝底不贯穿整行 */
+            vertical-align: bottom;
+            font-size: 1.05em;
+            font-weight: bold;
+            color: #ffffff;
+            background: #1e3a8a;
+            line-height: 1.5;
+            letter-spacing: 0.08em;
+            padding: 0.1em 0.8em 0.1em 1.3em;
+        }
+        /* 左侧斜角装饰：45° 金色菱形 */
+        .section-title::before {
+            content: "";
+            position: absolute;
+            left: 0.5em;
+            top: 50%;
+            width: 0.46em;
+            height: 0.46em;
+            margin-top: -0.23em;
+            background: #c9a227;
+            transform: rotate(45deg);
+        }
+
+        /* ===== 基本信息：3×3 表格（无线框，靠留白分列） ===== */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .info-table td {
+            border: none;           /* 去掉表格线 */
+            padding: 0.22em 0.6em 0.22em 0;
+            font-size: 0.95em;
+            vertical-align: middle;
+        }
+        .info-label { color: #64748b; margin-right: 0.5em; white-space: nowrap; }
+        /* 英文版的值更长（邮箱 / Political Status），允许在单元格内折行，避免顶到相邻单元格 */
+        .info-value { color: #111827; font-weight: bold; word-wrap: break-word; }
+
+        /* ===== 每条经历：左时间加粗 / 中单位加粗居中 / 右岗位加粗右对齐 ===== */
+        .item { margin-bottom: 0.55em; }
+        .item:last-child { margin-bottom: 0; }
+        .item-header {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 0.95em;
+            font-weight: bold;
+        }
+        .item-header span { display: table-cell; vertical-align: top; }
+        .item-date {
+            width: 27%;
+            text-align: left;
+            color: #1e3a8a;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        /* 中间列给 46%，这样它的中心正好落在整行中心上 → 单位名称是「页面居中」而不是「列内居中」 */
+        .item-company {
+            width: 46%;
+            text-align: center;
+            color: #111827;
+        }
+        .item-title {
+            width: 27%;
+            text-align: right;
+            color: #111827;
+        }
+
+        /* ===== 正文：实心圆点项目符号（保留背景/行动/结果标签） ===== */
+        .item-desc {
+            margin-top: 0.2em;
+            padding-left: 0.5em;
+            font-size: 0.95em;
+            color: #374151;
+            text-align: justify;
+        }
+        .desc-line {
+            padding-left: 1em;
+            text-indent: -1em;      /* 悬挂缩进：换行后与首行文字对齐 */
+            line-height: 1.55;
+            margin-bottom: 0.08em;
+        }
+        .desc-line:last-child { margin-bottom: 0; }
+        /* 实心圆点：用 CSS 画，避免依赖字体里 U+2022 的字形（YaHei 会退化成小中点） */
+        .desc-line::before {
+            content: "";
+            display: inline-block;
+            width: 0.3em;
+            height: 0.3em;
+            margin-right: 0.7em;
+            border-radius: 50%;
+            background: #c9a227;
+            vertical-align: 0.12em;
+        }
+        .desc-label { font-weight: bold; color: #1f2937; margin-right: 0.1em; }
+
+        /* ===== 荣誉奖项：三列表格 —— 获奖时间 / 竞赛名称 / 奖项级别 ===== */
+        .honor-line {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            font-size: 0.95em;
+            color: #374151;
+            margin-bottom: 0.22em;
+        }
+        .honor-line:last-child { margin-bottom: 0; }
+        .honor-line span {
+            display: table-cell;
+            vertical-align: top;
+        }
+        /* 三列对齐与经历行同口径：时间贴左、名称页面居中、等级贴右。
+           中间列同样取 46%，这样它的中心正好落在整行中心上（只做列内居中的话会偏左约 25pt） */
+        .honor-date { width: 27%; text-align: left; color: #64748b; font-variant-numeric: tabular-nums; }
+        .honor-name { width: 46%; text-align: center; color: #111827; }
+        .honor-level { width: 27%; text-align: right; }
+
+        /* ===== 技能特长 ===== */
+        .skill-tag {
+            display: inline-block;
+            padding: 0.1em 0.55em;
+            margin: 0 0.3em 0.3em 0;
+            font-size: 0.92em;
+            color: #1e3a8a;
+            background: #f7f9fc;
+            border: 1px solid #dbe4f0;
+            border-left: 0.18em solid #c9a227;
+            border-radius: 0.15em;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- ===== 顶部：艺术字标题 + 英文小字 + 标语 + 金色圆形图标 + 右上角证件照 ===== -->
+    <div class="top">
+        <div class="top-main">
+            <div class="doc-title">{{ labels.resume_title }}<span class="doc-title-en">{{ labels.resume_title_en }}</span></div>
+            {% if slogan %}<div class="slogan">{{ slogan }}</div>{% endif %}
+        </div>
+        <div class="top-icons">
+            <span class="gold-dot"></span><span class="gold-dot"></span><span class="gold-dot"></span>
+        </div>
+        <div class="top-photo">{% include "_photo.html" %}</div>
+    </div>
+
+    <!-- 顶部装饰分割条：蓝 + 浅金双色线条 -->
+    <div class="top-rule">
+        <div class="rule-blue"></div>
+        <div class="rule-gold"></div>
+    </div>
+
+    <!-- ===== 基本信息：3×3 表格 ===== -->
+    {% if basic_info %}
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.basic_info }}</span></div>
+        <table class="info-table">
+            {% for row in basic_info|batch(3) %}
+            <tr>
+                {% for cell in row %}
+                <td><span class="info-label">{{ cell.label }}</span><span class="info-value">{{ cell.value }}</span></td>
+                {% endfor %}
+                {% for _ in range(3 - row|length) %}<td></td>{% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+{% include "_sections.html" %}
+</div>
+</body>
+</html>

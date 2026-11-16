@@ -1,0 +1,312 @@
+/* ===== 排行榜 ===== */
+
+.lb-seg {
+  margin-top: 4px;
+}
+.lb-card {
+  padding: var(--space-4) var(--space-3);
+}
+.lb-title {
+  margin-bottom: var(--space-3);
+}
+.lb-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.lb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min); /* 榜单行触控高度达标 */
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.lb-item:hover {
+  background: var(--surface-2);
+}
+.lb-item--top {
+  border-color: var(--line);
+  background: var(--surface-2);
+}
+/* 前三名：保留金银铜语义色，但降为浅底 + 细描边（不再用深色渐变） */
+.lb-item--t1 {
+  background: var(--medal-1-bg);
+  border-color: var(--medal-1-line);
+}
+.lb-item--t2 {
+  background: var(--medal-2-bg);
+  border-color: var(--medal-2-line);
+}
+.lb-item--t3 {
+  background: var(--medal-3-bg);
+  border-color: var(--medal-3-line);
+}
+.lb-rank {
+  width: 30px;
+  flex: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.lb-avatar {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary-soft);
+  background: var(--tint-primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 16%, transparent);
+}
+.lb-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lb-name {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.lb-badge {
+  font-size: 10.5px;
+  color: var(--medal-badge-fg);
+  background: var(--medal-badge-bg);
+  border: 1px solid var(--medal-badge-line);
+  border-radius: var(--r-xs);
+  padding: 1px 6px;
+}
+.lb-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lb-score {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--fg-primary-soft);
+  flex: none;
+}
+
+.lb-my {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.lb-my-k {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+.lb-my-v {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin-top: 2px;
+}
+.lb-my-rank {
+  color: var(--fg-accent);
+  font-size: 19px;
+}
+.lb-note {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+  line-height: 1.7;
+  max-width: var(--measure);
+}
+
+@media (min-width: 860px) {
+  .lb-list {
+    gap: 8px;
+  }
+  .lb-item {
+    padding: 12px 14px;
+  }
+}
+
+/* ==========================================================================
+   体验增强 §12：我的成长面板
+   ========================================================================== */
+
+.gr-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 连续打卡：数字做大，但不用"惩罚式"红黄警示，断签只是归零事实 */
+.gr-streak {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -1.4px;
+  color: var(--fg-title);
+}
+.gr-streak-unit {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 4px;
+  color: var(--text-mute);
+}
+.gr-streak-label {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.gr-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* 近 7 天格子 */
+.gr-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.gr-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+}
+.gr-day.is-done {
+  border-color: color-mix(in srgb, var(--ok) 28%, transparent);
+  background: var(--tint-ok);
+  color: var(--fg-ok);
+}
+.gr-day.is-today {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+.gr-day-dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+.gr-day-date {
+  font-size: 10.5px;
+}
+.gr-day-wd {
+  font-size: 10.5px;
+}
+
+/* 两块卡片并排，窄屏堆叠 */
+.gr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.gr-card {
+  min-width: 0;
+}
+.gr-weeks,
+.gr-dims {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.gr-weeks li,
+.gr-dims li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.gr-week-label {
+  flex: none;
+  width: 96px;
+  font-size: var(--fs-xs);
+}
+.gr-week-bar {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill-4);
+  overflow: hidden;
+  min-width: 0;
+}
+.gr-week-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--primary);
+}
+.gr-week-val {
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+.gr-dim-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text);
+}
+.gr-dim-val {
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+
+/* 下一步：给一句能立刻执行的话 + 两个真实入口 */
+.gr-next-text {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .gr-grid {
+    grid-template-columns: 1fr;
+  }
+  .gr-week {
+    gap: 4px;
+  }
+  .gr-day {
+    padding: 6px 1px;
+  }
+  .gr-streak {
+    font-size: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gr-week-bar i {
+    transition: none;
+  }
+}
+
+/* 打卡主卡与其余卡片区分（极浅主色底，不用重渐变） */
+.gr-hero {
+  background: linear-gradient(180deg, var(--tint-primary), var(--surface) 62%);
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+/* 「下一步」用左侧主色条强调：这是面板里唯一需要用户行动的地方 */
+.gr-next {
+  border-left: 3px solid var(--primary);
+}

@@ -1,0 +1,234 @@
+/* ==========================================================================
+   报告生成进度（生成过程可视化）
+   ---------------------------------------------------------------------------
+   约定（与 global.css 一致）：
+     - 颜色/间距/字阶全部走语义令牌，本文件不出现任何 hex；
+     - 触控目标 ≥44px；进度条本身是纯展示，不承担点击；
+     - 动效在 prefers-reduced-motion: reduce 下全部关掉（进度仍然可读）。
+   ========================================================================== */
+
+.rp {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-4);
+  animation: rp-in 0.22s ease-out;
+}
+
+/* 生成很快时不闪进度条：短暂出现又消失比骨架屏更晃眼（延迟由组件控制） */
+.rp--hidden {
+  display: none;
+}
+
+.rp--compact {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.rp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: 10px;
+}
+
+.rp-title {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rp-elapsed {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ---- 进度条 ---- */
+.rp-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fill-4);
+  overflow: hidden;
+}
+
+.rp-fill {
+  position: relative; /* 流光定位在「填充段」内，而不是整条轨道 */
+  overflow: hidden;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.35s ease;
+}
+
+/* 进行中的阶段：条上跑一道浅色流光，表达「在动」——
+   但不推进百分比数字（数字只反映已完成的阶段数，不虚增） */
+.rp-fill--active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--surface) 60%, transparent) 50%,
+    transparent 100%
+  );
+  animation: rp-sheen 1.4s linear infinite;
+}
+
+/* 拿不到真实进度：不确定进度条，明确区别于「已完成 17%」 */
+.rp-track--indeterminate .rp-fill--ghost {
+  width: 34%;
+  background: color-mix(in srgb, var(--primary) 55%, transparent);
+  animation: rp-slide 1.5s ease-in-out infinite;
+}
+
+.rp-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ---- 阶段清单 ---- */
+.rp-steps {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rp-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+
+.rp-step--active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.rp-step--done {
+  color: var(--text-dim);
+}
+
+.rp-dot {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  color: var(--fg-on-ok);
+  background: transparent;
+}
+
+.rp-step--active .rp-dot {
+  border-color: var(--primary);
+  border-width: 2px;
+  animation: rp-pulse 1.6s ease-in-out infinite;
+}
+
+.rp-step--done .rp-dot {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.rp-step-label {
+  flex: none;
+}
+
+/* 子步骤（第 1 轮评分 / 二次校验）：不起新行，跟在阶段名后面 */
+.rp-step-detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: var(--fs-xs);
+  color: var(--fg-link);
+}
+
+.rp-step-sec {
+  flex: none;
+  margin-left: auto;
+  font-size: var(--fs-xs);
+}
+
+/* ---- 说明与异常 ---- */
+.rp-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-3) 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.rp-hint--warn {
+  color: var(--fg-warn);
+}
+
+@keyframes rp-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rp-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes rp-slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+@keyframes rp-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp,
+  .rp-fill,
+  .rp-step--active .rp-dot,
+  .rp-fill--active::after,
+  .rp-track--indeterminate .rp-fill--ghost {
+    animation: none;
+    transition: none;
+  }
+}

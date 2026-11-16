@@ -1,0 +1,36 @@
+# ============================================================
+# Caddy 反向代理 + 自动 HTTPS
+# ============================================================
+#
+# SITE_ADDRESS 由 docker-compose.yml 注入（写在仓库根目录的 .env 里）：
+#
+#   SITE_ADDRESS=:80
+#       纯 HTTP 模式。适合「还没买域名」时先用 http://<公网IP>/ 把整条链路跑通。
+#       ⚠️ 此模式下浏览器不会授予麦克风权限，设备自检会提示「拿不到麦克风接口」，
+#          只能验证页面、登录、简历解析、文字作答等不依赖麦克风的功能。
+#
+#   SITE_ADDRESS=interview.example.com
+#       生产模式。Caddy 会自动向 Let's Encrypt 申请证书、自动续期、
+#       并把 http 请求 301 跳到 https —— 麦克风因此可用。
+#       前提：域名已解析到本机公网 IP，且安全组已放行 80/443。
+#
+# 改完要重启才生效：docker compose up -d caddy
+
+{$SITE_ADDRESS} {
+	# 文本类响应压缩（音频 / PDF 本就是压缩格式，Caddy 会自动跳过）
+	encode zstd gzip
+
+	# 反向代理到后端容器。Caddy 会自动处理 WebSocket 升级与 X-Forwarded-* 头，
+	# 后端侧用 --proxy-headers 读取真实客户端 IP。
+	# 本项目最长请求是「整份简历 AI 结构化」（默认超时 120s），Caddy 默认不设
+	# 上游超时，无需额外配置；如以后调大 LLM_TIMEOUT_SECONDS，这里也不用改。
+	reverse_proxy app:8000
+
+	# 访问日志落到 /data（compose 里映射到 caddy_data 卷），按大小滚动。
+	log {
+		output file /data/access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}

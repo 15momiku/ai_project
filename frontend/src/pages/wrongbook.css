@@ -1,0 +1,187 @@
+/* ===== 错题本 ===== */
+
+.wb-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.wb-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  min-height: var(--tap-min);
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.wb-tab:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.wb-tab.on {
+  /* 分类标签页：用维度色码着色（未选中时也保留淡色，便于识别分类） */
+  border-color: color-mix(in srgb, var(--dim-c, var(--primary)) 40%, transparent);
+  background: var(--dim-c-tint, var(--tint-primary));
+  color: var(--dim-c, var(--primary));
+  font-weight: 600;
+}
+.wb-tab .dim-dot {
+  margin-right: 2px;
+}
+.wb-tab-count {
+  font-size: 11.5px;
+  background: var(--fill-3);
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+}
+
+/* 图标与标签文字基线对齐 */
+.block-label svg {
+  vertical-align: -0.16em;
+  flex: none;
+}
+
+.wb-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+.wb-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.wb-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.wb-score {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--fg-danger);
+}
+.wb-question {
+  font-size: 14px;
+  line-height: 1.75;
+  font-weight: 600;
+  max-width: var(--measure);
+}
+.wb-block {
+  border-left: 3px solid var(--line-strong);
+  padding-left: var(--space-3);
+}
+.wb-block-k {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  margin-bottom: 2px;
+}
+.wb-block-k.danger {
+  color: var(--fg-danger);
+}
+.wb-block-k.ok {
+  color: var(--fg-ok);
+}
+.wb-block-v {
+  font-size: var(--fs-base);
+  line-height: 1.75;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: var(--measure);
+}
+.wb-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
+}
+.wb-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.wb-tips li {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--fs-base);
+  line-height: 1.75;
+  color: var(--text);
+}
+.wb-ref {
+  font-size: var(--fs-base);
+  line-height: 1.8;
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: var(--space-3);
+  white-space: pre-wrap;
+  max-width: var(--measure);
+}
+
+@media (min-width: 860px) {
+  .wb-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===== 体验增强 §9：单题特训入口 ===== */
+.wb-train {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.wb-train-title {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+.wb-train-sub {
+  display: block;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+.wb-train .btn {
+  position: relative;
+  flex: none;
+}
+/* 触控热区补齐到 44px，按压态不改变布局边界 */
+.wb-train .btn::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+@media (max-width: 560px) {
+  .wb-train {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .wb-train .btn {
+    width: 100%;
+  }
+}

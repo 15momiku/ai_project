@@ -1,0 +1,28 @@
+{# 证件照区域（两个模板共用）：有照片用照片，没有用纯矢量占位插图 #}
+{% if photo %}
+<img class="photo" src="{{ photo }}" alt="">
+{% else %}
+<!-- 未上传证件照时的占位插图（男生正装一寸照示意，纯矢量，无渐变以免被栅格化） -->
+<svg class="photo" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ID photo">
+    <rect width="100" height="140" fill="#e8f0fb"/>
+    <!-- 西装肩膀 -->
+    <path d="M50 84 C26 84 12 102 9 140 L91 140 C88 102 74 84 50 84 Z" fill="#24405f"/>
+    <!-- 衬衫领口 -->
+    <path d="M50 84 L41 93 L46 110 L50 101 L54 110 L59 93 Z" fill="#ffffff"/>
+    <!-- 领带 -->
+    <path d="M50 94 L46 102 L50 124 L54 102 Z" fill="#2f6fd0"/>
+    <!-- 脖子 -->
+    <rect x="43" y="72" width="14" height="16" fill="#e8b98f"/>
+    <!-- 头 -->
+    <ellipse cx="50" cy="50" rx="21" ry="25" fill="#f2c9a0"/>
+    <ellipse cx="29" cy="52" rx="3.5" ry="5" fill="#e8b98f"/>
+    <ellipse cx="71" cy="52" rx="3.5" ry="5" fill="#e8b98f"/>
+    <!-- 头发 -->
+    <path d="M50 20 C33 20 27 33 28 46 C30 36 35 31 50 31 C65 31 70 36 72 46 C73 33 67 20 50 20 Z" fill="#26292e"/>
+    <!-- 眉毛与眼睛 -->
+    <rect x="38" y="45" width="9" height="2.4" rx="1.2" fill="#3a3f45"/>
+    <rect x="53" y="45" width="9" height="2.4" rx="1.2" fill="#3a3f45"/>
+    <ellipse cx="42" cy="52" rx="2.6" ry="2.2" fill="#33383e"/>
+    <ellipse cx="58" cy="52" rx="2.6" ry="2.2" fill="#33383e"/>
+</svg>
+{% endif %}

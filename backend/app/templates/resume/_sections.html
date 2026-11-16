@@ -1,0 +1,110 @@
+{# ============================================================
+   六个内容板块（模板1 / 模板2 共用）
+   板块顺序固定：教育背景 → 工作经历 → 项目经历 → 校园经历 → 荣誉奖项 → 技能特长
+   三列经历行统一为：左时间（加粗左对齐） → 中单位（加粗居中） → 右岗位/专业（加粗右对齐）
+   两个模板只有 <style> 不同，因此内容与文字格式不会走样。
+   依赖上下文：labels / 简历各字段
+   ============================================================ #}
+    <!-- 教育背景 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.education }}</span></div>
+        {% for item in education %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-date">{{ item.start_date }} - {{ item.end_date }}</span>
+                <span class="item-company">{{ item.company }}</span>
+                <span class="item-title">{{ item.title }}</span>
+            </div>
+            <div class="item-desc">
+                {% for line in item.description_lines %}
+                <div class="desc-line">{% if line.label %}<span class="desc-label">{{ line.label }}{{ labels.label_sep }}</span>{% endif %}{{ line.text }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 工作经历 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.work }}</span></div>
+        {% for item in work_experience %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-date">{{ item.start_date }} - {{ item.end_date }}</span>
+                <span class="item-company">{{ item.company }}</span>
+                <span class="item-title">{{ item.title }}</span>
+            </div>
+            <div class="item-desc">
+                {% for line in item.description_lines %}
+                <div class="desc-line">{% if line.label %}<span class="desc-label">{{ line.label }}{{ labels.label_sep }}</span>{% endif %}{{ line.text }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 项目经历 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.project }}</span></div>
+        {% for item in project_experience %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-date">{{ item.start_date }} - {{ item.end_date }}</span>
+                {# 项目经历列序与工作/教育不同：**项目名称居中、组织/客户右对齐**
+                   （.item-company 是居中列、.item-title 是右对齐列，这里按语义倒着放） #}
+                <span class="item-company">{{ item.title }}</span>
+                <span class="item-title">{{ item.company }}</span>
+            </div>
+            <div class="item-desc">
+                {% for line in item.description_lines %}
+                <div class="desc-line">{% if line.label %}<span class="desc-label">{{ line.label }}{{ labels.label_sep }}</span>{% endif %}{{ line.text }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if campus_experience %}
+    <!-- 校园经历 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.campus }}</span></div>
+        {% for item in campus_experience %}
+        <div class="item">
+            <div class="item-header">
+                <span class="item-date">{{ item.start_date }} - {{ item.end_date }}</span>
+                <span class="item-company">{{ item.company }}</span>
+                <span class="item-title">{{ item.title }}</span>
+            </div>
+            <div class="item-desc">
+                {% for line in item.description_lines %}
+                <div class="desc-line">{% if line.label %}<span class="desc-label">{{ line.label }}{{ labels.label_sep }}</span>{% endif %}{{ line.text }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if honors %}
+    <!-- 荣誉奖项：三列表格 —— 获奖时间 / 竞赛名称 / 奖项级别 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.honors }}</span></div>
+        {% for item in honors %}
+        <div class="honor-line">
+            <span class="honor-date">{{ item.date }}</span>
+            <span class="honor-name">{{ item.name }}</span>
+            <span class="honor-level">{{ item.level }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 技能特长 -->
+    <div class="section">
+        <div class="section-head"><span class="section-title">{{ labels.skills }}</span></div>
+        <div>
+            {% for skill in skills %}
+            <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>

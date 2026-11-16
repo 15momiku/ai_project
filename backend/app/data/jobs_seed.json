@@ -1,0 +1,431 @@
+{
+    "_note":  "示例岗位（20 条），内置演示数据。数据仅用于演示，具体岗位与截止时间以企业官方公告为准。days_ago 表示「更新时间」相对今天往前推几天，载入时实时计算，保证示例数据不会显得过期。",
+    "jobs":  [
+                 {
+                     "company":  "中国建设银行",
+                     "nature":  "国企",
+                     "industry":  "银行",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "北京",
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "金融学",
+                                    "经济学",
+                                    "计算机科学与技术"
+                                ],
+                     "positions":  [
+                                       "金融科技岗",
+                                       "管理培训生"
+                                   ],
+                     "notice_url":  "https://job2.ccb.com/cn/job/index.html",
+                     "apply_url":  "https://job2.ccb.com/cn/job/index.html",
+                     "note":  "网申 10 月 8 日截止，笔试初定 10 月底机考，需提前完成在线测评。",
+                     "days_ago":  1
+                 },
+                 {
+                     "company":  "华为技术有限公司",
+                     "nature":  "民企",
+                     "industry":  "通信设备",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "深圳",
+                                       "杭州"
+                                   ],
+                     "majors":  [
+                                    "计算机科学与技术",
+                                    "电子信息工程",
+                                    "通信工程"
+                                ],
+                     "positions":  [
+                                       "软件开发工程师",
+                                       "算法工程师"
+                                   ],
+                     "notice_url":  "https://career.huawei.com",
+                     "apply_url":  "https://career.huawei.com",
+                     "note":  "机考已通过，初面偏项目细节；建议准备一个能讲透的科研/工程经历。",
+                     "days_ago":  2
+                 },
+                 {
+                     "company":  "国家电网有限公司",
+                     "nature":  "央企",
+                     "industry":  "能源电力",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "全国"
+                                   ],
+                     "majors":  [
+                                    "电气工程及其自动化",
+                                    "计算机科学与技术"
+                                ],
+                     "positions":  [
+                                       "电气工程师"
+                                   ],
+                     "notice_url":  "https://zhaopin.sgcc.com.cn",
+                     "apply_url":  "https://zhaopin.sgcc.com.cn",
+                     "note":  "一批次简历未通过，专业方向与岗位要求不完全匹配；二批次可再试。",
+                     "days_ago":  9
+                 },
+                 {
+                     "company":  "字节跳动",
+                     "nature":  "民企",
+                     "industry":  "互联网",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "北京",
+                                       "上海",
+                                       "深圳"
+                                   ],
+                     "majors":  [
+                                    "计算机科学与技术",
+                                    "软件工程"
+                                ],
+                     "positions":  [
+                                       "后端开发工程师"
+                                   ],
+                     "notice_url":  "https://jobs.bytedance.com/campus",
+                     "apply_url":  "https://jobs.bytedance.com/campus",
+                     "note":  "内推码来自牛客；二面重算法与系统设计，手撕两道中等题。",
+                     "days_ago":  1
+                 },
+                 {
+                     "company":  "中国移动通信集团",
+                     "nature":  "央企",
+                     "industry":  "通信运营",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "广州",
+                                       "成都"
+                                   ],
+                     "majors":  [
+                                    "通信工程",
+                                    "计算机科学与技术",
+                                    "市场营销"
+                                ],
+                     "positions":  [
+                                       "网络运维工程师",
+                                       "市场运营岗"
+                                   ],
+                     "notice_url":  "https://job.10086.cn",
+                     "apply_url":  "https://job.10086.cn",
+                     "note":  "公告已发布，网申尚未开始；关注「中国移动招聘」公众号推送。",
+                     "days_ago":  3
+                 },
+                 {
+                     "company":  "宝洁（中国）",
+                     "nature":  "外企",
+                     "industry":  "快消",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "广州"
+                                   ],
+                     "majors":  [
+                                    "不限专业"
+                                ],
+                     "positions":  [
+                                       "市场部管理培训生"
+                                   ],
+                     "notice_url":  "https://www.pgcareers.com",
+                     "apply_url":  "https://www.pgcareers.com",
+                     "note":  "全程英文；二面案例题准备不足，建议提前练 P\u0026G 八大问。",
+                     "days_ago":  12
+                 },
+                 {
+                     "company":  "宁德时代",
+                     "nature":  "民企",
+                     "industry":  "新能源",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "宁德",
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "材料科学与工程",
+                                    "化学工程与技术",
+                                    "机械工程"
+                                ],
+                     "positions":  [
+                                       "电池研发工程师"
+                                   ],
+                     "notice_url":  "https://www.catl.com",
+                     "apply_url":  "https://www.catl.com",
+                     "note":  "研发岗要求硕博，需提交科研成果清单。",
+                     "days_ago":  5
+                 },
+                 {
+                     "company":  "德勤华永会计师事务所",
+                     "nature":  "外企",
+                     "industry":  "咨询与专业服务",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "北京",
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "会计学",
+                                    "财务管理",
+                                    "审计学"
+                                ],
+                     "positions":  [
+                                       "审计助理"
+                                   ],
+                     "notice_url":  "https://www2.deloitte.com/cn",
+                     "apply_url":  "https://www2.deloitte.com/cn",
+                     "note":  "在线测评含逻辑推理与英文阅读，测评后进入小组面试。",
+                     "days_ago":  4
+                 },
+                 {
+                     "company":  "中国航天科技集团",
+                     "nature":  "央企",
+                     "industry":  "航空航天",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "北京",
+                                       "西安"
+                                   ],
+                     "majors":  [
+                                    "航空航天工程",
+                                    "控制科学与工程"
+                                ],
+                     "positions":  [
+                                       "飞行器设计工程师"
+                                   ],
+                     "notice_url":  "https://www.spacechina.com",
+                     "apply_url":  "https://www.spacechina.com",
+                     "note":  "需政审与保密审查，流程较长；简历中突出项目与专利。",
+                     "days_ago":  0
+                 },
+                 {
+                     "company":  "腾讯",
+                     "nature":  "民企",
+                     "industry":  "互联网",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "深圳",
+                                       "北京"
+                                   ],
+                     "majors":  [
+                                    "计算机科学与技术",
+                                    "软件工程",
+                                    "数字媒体技术"
+                                ],
+                     "positions":  [
+                                       "产品经理",
+                                       "前端开发工程师"
+                                   ],
+                     "notice_url":  "https://join.qq.com",
+                     "apply_url":  "https://join.qq.com",
+                     "note":  "终面已结束，等 HR 通知；建议保持邮件与电话畅通。",
+                     "days_ago":  0
+                 },
+                 {
+                     "company":  "招商银行",
+                     "nature":  "国企",
+                     "industry":  "银行",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "深圳"
+                                   ],
+                     "majors":  [
+                                    "金融学",
+                                    "计算机科学与技术"
+                                ],
+                     "positions":  [
+                                       "总行管培生（金融科技方向）"
+                                   ],
+                     "notice_url":  "https://career.cmbchina.com",
+                     "apply_url":  "https://career.cmbchina.com",
+                     "note":  "AI 面限时答题，语速与镜头表现有影响；建议提前录制练习。",
+                     "days_ago":  8
+                 },
+                 {
+                     "company":  "国家开发银行",
+                     "nature":  "国企",
+                     "industry":  "银行",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "北京"
+                                   ],
+                     "majors":  [
+                                    "经济学",
+                                    "金融学",
+                                    "法学"
+                                ],
+                     "positions":  [
+                                       "信贷管理岗"
+                                   ],
+                     "notice_url":  "https://www.cdb.com.cn/rlzy/gzjh/",
+                     "apply_url":  "https://www.cdb.com.cn/rlzy/gzjh/",
+                     "note":  "政策性银行，报名系统尚未开放，先准备好中英文简历。",
+                     "days_ago":  6
+                 },
+                 {
+                     "company":  "中芯国际",
+                     "nature":  "民企",
+                     "industry":  "半导体",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "微电子科学与工程",
+                                    "材料科学与工程",
+                                    "物理学"
+                                ],
+                     "positions":  [
+                                       "工艺工程师"
+                                   ],
+                     "notice_url":  "https://www.smics.com",
+                     "apply_url":  "https://www.smics.com",
+                     "note":  "行测类测评未达标，可等待下一批次；注意测评需一次性完成。",
+                     "days_ago":  11
+                 },
+                 {
+                     "company":  "中国建筑第八工程局",
+                     "nature":  "国企",
+                     "industry":  "建筑与工程",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "上海",
+                                       "南京",
+                                       "成都"
+                                   ],
+                     "majors":  [
+                                    "土木工程",
+                                    "工程管理",
+                                    "给排水科学与工程"
+                                ],
+                     "positions":  [
+                                       "施工管理岗"
+                                   ],
+                     "notice_url":  "https://8b.cscec.com",
+                     "apply_url":  "https://8b.cscec.com",
+                     "note":  "偏施工现场，需接受项目所在地长期驻场。",
+                     "days_ago":  7
+                 },
+                 {
+                     "company":  "联合利华",
+                     "nature":  "外企",
+                     "industry":  "快消",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "不限专业"
+                                ],
+                     "positions":  [
+                                       "供应链管理培训生"
+                                   ],
+                     "notice_url":  "https://www.unilever.com.cn",
+                     "apply_url":  "https://www.unilever.com.cn",
+                     "note":  "终面为高管面，问了很多业务情景题；U 家秋招已结束，可看春招。",
+                     "days_ago":  14
+                 },
+                 {
+                     "company":  "大疆创新",
+                     "nature":  "民企",
+                     "industry":  "智能制造",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "深圳"
+                                   ],
+                     "majors":  [
+                                    "自动化",
+                                    "计算机科学与技术",
+                                    "机械电子工程"
+                                ],
+                     "positions":  [
+                                       "嵌入式软件工程师"
+                                   ],
+                     "notice_url":  "https://we.dji.com",
+                     "apply_url":  "https://we.dji.com",
+                     "note":  "已发 Offer，需在 5 个工作日内确认；总包含签字费，注意落户政策。",
+                     "days_ago":  2
+                 },
+                 {
+                     "company":  "中国电子科技集团",
+                     "nature":  "央企",
+                     "industry":  "电子信息",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "成都",
+                                       "南京"
+                                   ],
+                     "majors":  [
+                                    "电子信息工程",
+                                    "通信工程",
+                                    "计算机科学与技术"
+                                ],
+                     "positions":  [
+                                       "雷达系统工程师"
+                                   ],
+                     "notice_url":  "https://www.cetc.com.cn",
+                     "apply_url":  "https://www.cetc.com.cn",
+                     "note":  "AI 面已提交，等待技术面通知；需准备保密相关材料。",
+                     "days_ago":  3
+                 },
+                 {
+                     "company":  "某省定向选调生（省委组织部）",
+                     "nature":  "事业单位",
+                     "industry":  "公共部门",
+                     "audience":  "2027届硕士及以上",
+                     "locations":  [
+                                       "全省"
+                                   ],
+                     "majors":  [
+                                    "不限专业"
+                                ],
+                     "positions":  [
+                                       "定向选调生"
+                                   ],
+                     "notice_url":  "https://www.12371.cn",
+                     "apply_url":  "",
+                     "note":  "需党员或学生干部经历；公告见学校就业网「选调生」专栏。",
+                     "days_ago":  4
+                 },
+                 {
+                     "company":  "中国工商银行",
+                     "nature":  "国企",
+                     "industry":  "银行",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "北京",
+                                       "上海"
+                                   ],
+                     "majors":  [
+                                    "金融学",
+                                    "计算机科学与技术"
+                                ],
+                     "positions":  [
+                                       "科技菁英岗"
+                                   ],
+                     "notice_url":  "https://job.icbc.com.cn",
+                     "apply_url":  "https://job.icbc.com.cn",
+                     "note":  "已收到口头 Offer（OC），等待正式书面 Offer 与体检安排。",
+                     "days_ago":  1
+                 },
+                 {
+                     "company":  "美的集团",
+                     "nature":  "民企",
+                     "industry":  "智能制造",
+                     "audience":  "2027届本科及以上",
+                     "locations":  [
+                                       "佛山"
+                                   ],
+                     "majors":  [
+                                    "机械工程",
+                                    "自动化",
+                                    "工业工程"
+                                ],
+                     "positions":  [
+                                       "结构工程师"
+                                   ],
+                     "notice_url":  "https://www.midea.com",
+                     "apply_url":  "https://www.midea.com",
+                     "note":  "初面问了很多有限元与材料选型细节，基础知识需补强。",
+                     "days_ago":  13
+                 }
+             ]
+}

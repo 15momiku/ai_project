@@ -1,0 +1,465 @@
+/* ==========================================================================
+   面试顶部进度条 + 口播实时反馈条（共用样式）
+
+   组件：
+     components/ProgressDots.jsx      → .pd-*
+     components/SpeechFeedbackBar.jsx → .sf-*
+
+   约定（与 global.css 一致）：
+     - 只引用语义令牌，不写死 hex（换主题/深色模式只改 :root）
+     - 触控目标 ≥ 44px：视觉紧凑，用 ::after 透明热区补齐，按压不改布局边界
+     - 结构性图标一律来自 components/icons.jsx，不用 emoji
+     - 动效在 prefers-reduced-motion: reduce 下全部关掉
+   ========================================================================== */
+
+.pd-wrap {
+  display: block;
+}
+
+/* ==========================================================================
+   1. 顶部进度条
+   sticky 顶栏：一层（手机）到两层（≥700px）网格，永不换行、永不盖住录音按钮。
+   顶层容器由父页面继续挂 .iv-top（毛玻璃 + 安全区），这里只补网格与点阵。
+   ========================================================================== */
+.pd-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  padding: var(--space-2) var(--space-4);
+  min-width: 0;
+}
+
+/* 第 0 行：父页面注入的头部（AI 标识 / 岗位名 / 开关），横跨整行 */
+.pd-head {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* 注入的头部不再重复内边距与居中：宽度、安全区、左右留白统一由 .pd-bar 负责，
+   否则会出现「玻璃条内又套一层带 padding 的容器」导致错位 */
+.pd-head .iv-top-inner,
+.pd-head .iv-title-row {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 第一行：题号 + 环节（可省略号截断）| 已用时长 | 退出 */
+.pd-row {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+.pd-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pd-stage {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+.pd-stage-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+/* 「预计还需 4–6 分钟」：区间，不是单点数字 */
+.pd-left {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+.pd-left-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pd-hint {
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+}
+
+.pd-answered {
+  flex: none;
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.pd-elapsed {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+.pd-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+/* 退出：破坏性操作，视觉克制但热区足 44px；按压只变色不改布局边界 */
+.pd-exit {
+  appearance: none;
+  flex: none;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  padding: 0 var(--space-3);
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+  position: relative;
+}
+.pd-exit::after {
+  /* 热区补到 48px 高：视觉尺寸不变，指头够得着 */
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+.pd-exit:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.pd-exit:active {
+  background: var(--fill-3);
+}
+.pd-exit[aria-expanded='true'] {
+  border-color: var(--line-strong);
+  background: var(--fill-3);
+  color: var(--text);
+}
+.pd-exit:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- 点阵：一题一个点（不是百分比）---- */
+.pd-dots {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding-top: 2px;
+  /* 默认（≤12 题）自动铺满一行，不出现滚动条 */
+  overflow: hidden;
+}
+/* > 12 题：改为横向滑动，而不是把点挤扁或溢出顶栏 */
+.pd-dots--scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+  /* 右缘渐隐，暗示「还能往右滑」 */
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 18px), transparent 100%);
+}
+.pd-dots--scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.pd-dot {
+  /* 允许轻微压缩：9 题在 375px 下刚好一行放下；>12 题才走横向滑动 */
+  flex: 0 1 auto;
+  width: 10px;
+  min-width: 6px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+/* 已完成：实心主色 */
+.pd-dot--done {
+  background: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+/* 当前：描边 + 轻微呼吸 */
+.pd-dot--now {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2.5px var(--primary);
+  animation: pd-breath 1.8s ease-in-out infinite;
+}
+@keyframes pd-breath {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.86);
+  }
+}
+
+/* ---- 会话不可继续时的安抚文案：先说保留，再说还能做什么 ---- */
+.pd-notice {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin: 2px 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--fg-warn);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-sm);
+  background: var(--tint-warn);
+}
+.pd-notice svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* ---- 二次确认：portal 到 body，居中卡片 + 遮罩 ---- */
+.pd-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sticky);
+  background: var(--scrim);
+}
+.pd-confirm {
+  position: fixed;
+  z-index: calc(var(--z-sticky) + 1);
+  left: 50%;
+  bottom: calc(var(--space-5) + var(--safe-b));
+  transform: translateX(-50%);
+  width: min(400px, calc(100vw - 2 * var(--space-4)));
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4);
+  animation: pd-pop 0.16s ease both;
+}
+@keyframes pd-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+.pd-confirm-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text);
+}
+.pd-confirm-desc {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.pd-confirm-acts {
+  margin-top: var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+.pd-confirm-acts .btn {
+  flex: 0 1 auto;
+}
+
+/* ==========================================================================
+   2. 口播实时反馈条
+   录音态过渡区：一条细线，贴在字幕条上方；不弹窗、不打断。
+   ========================================================================== */
+.sf-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+  /* 极窄屏也不换行：内容横向滚动，顶栏/字幕条永不被顶高 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain; /* 横滑不带动整页 */
+  scrollbar-width: none;
+  /* 只作视觉隐藏的 .sf-sr 的定位祖先，避免它跑到别处去 */
+  position: relative;
+  padding: 7px var(--space-3);
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+.sf-bar::-webkit-scrollbar {
+  display: none;
+}
+.sf-mic {
+  flex: none;
+  color: var(--primary);
+}
+.sf-clock {
+  flex: none;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  padding-right: var(--space-2);
+  border-right: 1px solid var(--line);
+}
+.sf-facts {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sf-fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+}
+.sf-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+.sf-unit {
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+}
+.sf-spacer {
+  flex: 1 1 auto;
+  min-width: var(--space-2);
+}
+.sf-hint {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-mute);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+.sf-hint svg {
+  flex: none;
+  color: var(--text-mute);
+}
+/* 屏幕阅读器专用文本 .sf-sr 已统一到 global.css（与 .sr-only 共用一份声明） */
+
+/* 「不再提示」：视觉是小字，热区 44×44（::after 扩展，不改布局边界） */
+.sf-close {
+  appearance: none;
+  flex: none;
+  cursor: pointer;
+  position: relative;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: 0;
+  padding: 0 var(--space-1);
+  color: var(--text-mute);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.sf-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--space-2));
+  transform: translateY(-50%);
+  width: var(--tap-min);
+  height: var(--tap-min);
+}
+.sf-close:hover {
+  color: var(--text);
+}
+.sf-close:active {
+  color: var(--text);
+}
+.sf-close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ==========================================================================
+   3. 响应式：手机单列（题号+退出 / 时长信息 / 点阵），桌面双列
+   —— 单列在 375px 下也不会换行、不会盖住录音按钮
+   ========================================================================== */
+@media (min-width: 700px) {
+  .pd-bar {
+    column-gap: var(--space-4);
+    padding: var(--space-2) var(--space-5);
+  }
+}
+
+@media (max-width: 380px) {
+  .pd-bar {
+    padding: var(--space-2) var(--space-3);
+  }
+  .pd-hint {
+    display: none; /* 超小屏先让位给「预计还需 x–y 分钟」本身 */
+  }
+  .pd-answered {
+    display: none;
+  }
+}
+
+/* 减少动态：呼吸/弹入/过渡全部停掉，信息一个不少 */
+@media (prefers-reduced-motion: reduce) {
+  .pd-dot--now {
+    animation: none;
+  }
+  .pd-confirm {
+    animation: none;
+  }
+  .pd-dot,
+  .pd-exit {
+    transition: none;
+  }
+}

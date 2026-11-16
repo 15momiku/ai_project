@@ -1,0 +1,46 @@
+# ============================================================
+# 构建上下文排除清单
+# ============================================================
+# 这个文件决定了 `docker build` 能把哪些文件「看见」。
+# 两条铁律：
+#   1) 密钥绝不能进镜像 —— backend/.env 必须排除；
+#   2) 运行期数据绝不能进镜像 —— backend/data/ 必须排除
+#      （里面有 SQLite 全量业务数据、用户简历原件、语音缓存）。
+# 另外排除依赖与产物可以大幅加快构建（上下文从几百 MB 降到几 MB）。
+
+# ---- 依赖与构建产物（镜像内会重新装/重新构建）----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+**/__pycache__/
+**/*.py[cod]
+.venv/
+venv/
+
+# ---- 密钥文件（绝不进镜像）----
+backend/.env
+backend/.env.*
+!backend/.env.example
+!backend/.env.production.example
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# ---- 运行期数据（绝不进镜像）----
+backend/data/
+
+# ---- 版本控制与本地基线 ----
+.git/
+.gitignore
+.regress/
+
+# ---- 文档与本地脚本（保留也无妨，排除是为了缩小上下文）----
+start.ps1
+start.cmd
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

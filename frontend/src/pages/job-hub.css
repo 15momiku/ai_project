@@ -1,0 +1,1578 @@
+/* ==========================================================================
+   岗位信息汇总
+   全部走本项目 global.css 的语义令牌：不引入新的设计语言，
+   深浅色主题、焦点环、触控目标、动效偏好都由全局规范接管。
+   ========================================================================== */
+
+/* ---------------- 子标签（与「我的面试」同构，保持全站一致） ---------------- */
+/* 页面标题前的小图标：跟着标题字色走，不用 .inline-ic（那是给正文里的次要图标用的灰） */
+.jh-title-ic {
+  vertical-align: -3px;
+  margin-right: 6px;
+  color: var(--fg-link);
+}
+
+.jh-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jh-tabs::-webkit-scrollbar {
+  display: none;
+}
+.jh-tab {
+  appearance: none;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.jh-tab:hover {
+  color: var(--text);
+  background: var(--fill-2);
+}
+.jh-tab.on {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+.jh-tab:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.jh-panel-wrap:focus {
+  outline: none;
+}
+
+/* ---------------- 工具栏 / 筛选 ---------------- */
+.jh-toolbar {
+  padding: var(--space-3);
+}
+.jh-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.jh-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.jh-search-ic {
+  position: absolute;
+  left: 11px;
+  color: var(--text-mute);
+  pointer-events: none;
+  z-index: 1;
+}
+/* ⚠️ 必须用**后代选择器**提高优先级（.jh-search .jh-search-input），不能只写一个类名。
+   原因：全局 `.input, .textarea, .select { padding: 10px 12px }` 与本页的单类规则
+   优先级相同（都是 0,1,0），谁生效取决于**打包后 CSS 的先后顺序**——而
+   `global.css`（main.jsx 引入）在产物里排在 `job-hub.css` 之后，
+   于是 `padding: 10px 12px` 会覆盖这里的 `padding-left`，**绝对定位的放大镜
+   就直接压在占位文字上**（这是实际发生过的 bug）。提高一级优先级后，
+   与文件引入顺序彻底无关。
+   右侧不再留出图标位：搜索框里只保留左侧一枚放大镜（清空按钮已按需求去掉）。 */
+.jh-search .jh-search-input {
+  padding-left: 36px;
+}
+.jh-kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  padding: 1px 5px;
+  background: var(--surface-2);
+}
+
+/* 状态分段控件：复用 macOS segmented control 的观感 */
+.jh-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line-faint);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jh-seg::-webkit-scrollbar {
+  display: none;
+}
+.jh-seg-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 0 var(--space-3);
+  min-height: 38px;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  font-size: var(--fs-base);
+  font-family: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.jh-seg-btn:hover {
+  color: var(--text);
+}
+.jh-seg-btn.on {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+.jh-filter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.jh-filter-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+.jh-fbtn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+.jh-fbtn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+.jh-fbtn.has,
+.jh-fbtn.on {
+  border-color: var(--primary);
+  background: var(--tint-primary);
+  color: var(--fg-link);
+  font-weight: 600;
+}
+.jh-fbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.jh-fbtn-count {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--fg-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+}
+.jh-clear {
+  margin-left: auto;
+}
+
+/* 展开的维度选项：胶囊多选 */
+.jh-option-panel {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.jh-option-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: var(--fs-base);
+}
+.jh-option-search {
+  width: 150px;
+  min-height: 36px;
+  padding: 6px 10px;
+}
+.jh-option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.jh-opt-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  min-height: 32px;
+  border: 1px solid var(--line-faint);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+.jh-opt-chip:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+.jh-opt-chip.on {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  color: var(--fg-link);
+  font-weight: 600;
+}
+.jh-opt-count {
+  font-size: 11px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.jh-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-3);
+}
+.jh-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, transparent);
+  background: var(--tint-primary);
+  color: var(--fg-link);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  cursor: pointer;
+}
+.jh-chip:hover {
+  background: var(--tint-primary-strong);
+}
+
+/* ---------------- 表格 ---------------- */
+.jh-tablewrap {
+  position: relative;
+  margin-top: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.jh-tablewrap--flush {
+  margin-top: 0;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  box-shadow: none;
+}
+.jh-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-base);
+  min-width: 1080px;
+}
+
+/* `table-layout: fixed` **只给汇总主列表**（.jh-tablewrap--main），
+   不施加到 .jh-table 本身：导入预览、投递统计、账号概览那几张表列数不同、
+   也不需要逐列定宽，套上 fixed 会让它们按等宽塌成一堆。
+   主列表必须用 fixed —— 在默认的 `auto` 下，浏览器按**内容**分配宽度，
+   `th/td` 上的 `width` 只是「建议」：实测把专业要求设成 190px 实际只分到 85px，
+   长内容被挤成 ~343px 高的细条，完全没法读。fixed 下第一行（表头）的宽度
+   就是最终宽度，内容再长也只在该列内折行，因此 --jh-col-*-w 是**硬约束**。 */
+.jh-tablewrap--main .jh-table {
+  table-layout: fixed;
+  /* 12 列硬宽度之和约 1400px，窄了就给横向滚动（.jh-tablewrap 已备 overflow-x）。
+     若嫌出现横向滚动太早，把这里调小、或同步收窄下面几个 --jh-col-*-w。 */
+  min-width: 1400px;
+}
+
+/* ============================================================
+   汇总列表 · 每列宽度调节参数（改这里就够了）
+   ------------------------------------------------------------
+   用 CSS 变量而不是写死 width，是为了让「各列宽窄」集中在一处：
+   想调哪一列就改对应变量，不用在 12 个 th/td 里翻。
+
+   因为表格是 `table-layout: fixed`（见 .jh-table 的说明），
+   这些值是**硬约束**：写多少就是多少，内容超长只在该列内折行或省略，
+   不会把别的列挤窄。所有列之和若小于容器宽度，多余空间按比例摊给各列；
+   若大于容器宽度，`.jh-tablewrap` 出现横向滚动。
+
+   序号 / 操作两列很窄且固定，宽度写在 .jh-col-idx 与 .jh-sticky-r 里；
+   企业名称是冻结列，宽度同时受 --jh-col-company-w 与 .jh-sticky-2 影响
+   （后者用 left 偏移量对齐，改宽度时**两处都要改**，见那里的注释）。
+   ============================================================ */
+.jh-table {
+  --jh-col-idx-w: 52px; /* 序号（冻结列；.jh-sticky-2 的 left 偏移跟着它） */
+  --jh-col-company-w: 180px; /* 企业名称（冻结列） */
+  --jh-col-nature-w: 92px; /* 雇主类型 */
+  --jh-col-industry-w: 96px; /* 行业 */
+  --jh-col-audience-w: 80px; /* 毕业届别（超长省略号，悬停看全文） */
+  --jh-col-locations-w: 80px; /* 工作地点（超长省略号） */
+  --jh-col-majors-w: 230px; /* 专业要求（折行完整显示） */
+  --jh-col-positions-w: 250px; /* 招聘岗位（折行完整显示，通常最长） */
+  --jh-col-progress-w: 150px; /* 投递进度（徽章，不宜压窄） */
+  --jh-col-date-w: 116px; /* 更新时间 */
+  --jh-col-apply-w: 92px; /* 投递链接 */
+  --jh-col-action-w: 56px; /* 操作（删除岗位） */
+  --jh-ellip-max: 220px; /* 省略号列的通用宽度上限 */
+}
+
+/* 按上面的变量给每一列定宽；nth-child 的序号与表头一一对应：
+   1 序号 / 2 企业名称 / 3 雇主类型 / 4 行业 / 5 毕业届别 / 6 工作地点 /
+   7 专业要求 / 8 招聘岗位 / 9 投递进度 / 10 更新时间 / 11 投递链接 / 12 操作
+   （管理员才渲染第 12 列，普通用户表格只有 11 列 —— 因此这里只约束
+     前 11 列，第 12 列交给 sticky 规则自己的宽度） */
+.jh-table th:nth-child(2),
+.jh-table td:nth-child(2) {
+  width: var(--jh-col-company-w);
+}
+.jh-table th:nth-child(3),
+.jh-table td:nth-child(3) {
+  width: var(--jh-col-nature-w);
+}
+.jh-table th:nth-child(4),
+.jh-table td:nth-child(4) {
+  width: var(--jh-col-industry-w);
+}
+.jh-table th:nth-child(5),
+.jh-table td:nth-child(5) {
+  width: var(--jh-col-audience-w);
+}
+.jh-table th:nth-child(6),
+.jh-table td:nth-child(6) {
+  width: var(--jh-col-locations-w);
+}
+.jh-table th:nth-child(7),
+.jh-table td:nth-child(7) {
+  width: var(--jh-col-majors-w);
+}
+.jh-table th:nth-child(8),
+.jh-table td:nth-child(8) {
+  width: var(--jh-col-positions-w);
+}
+.jh-table th:nth-child(9),
+.jh-table td:nth-child(9) {
+  width: var(--jh-col-progress-w);
+}
+.jh-table th:nth-child(10),
+.jh-table td:nth-child(10) {
+  width: var(--jh-col-date-w);
+}
+.jh-table th:nth-child(11),
+.jh-table td:nth-child(11) {
+  width: var(--jh-col-apply-w);
+}
+/* 第 12 列（操作）。`:last-child` 比 nth-child(12) 更稳：
+   它自动跟着「渲染了几列」走，窄屏把操作列收进卡片时也不会误伤别的列。 */
+.jh-table th:last-child:not(:nth-child(11)),
+.jh-table td:last-child:not(:nth-child(11)) {
+  width: var(--jh-col-action-w);
+}
+
+/* ---------------- 昨日更新标注（列表上方） ---------------- */
+/* 类名用中性的 jh-daily 而不是 jh-today / jh-yesterday：
+   这个标注统计的是「上一日」，日后若要改成「近 7 天」之类的口径，
+   样式钩子不必跟着改。文字与口径都在 JobListPanel.jsx 里。 */
+.jh-daily {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--space-3);
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+}
+/* 有更新时才点亮：静默的 0 不应该看起来像一条喜讯 */
+.jh-daily.is-hot {
+  border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+}
+.jh-daily-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  flex: none;
+}
+.jh-daily.is-hot .jh-daily-dot {
+  background: var(--ok);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 22%, transparent);
+}
+.jh-daily-label {
+  color: var(--text);
+  font-weight: 600;
+}
+.jh-daily-num {
+  font-size: 26px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.jh-daily.is-hot .jh-daily-num {
+  color: var(--ok);
+}
+.jh-daily-unit {
+  color: var(--text);
+  font-weight: 600;
+}
+.jh-daily-hint {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+@media (max-width: 640px) {
+  .jh-daily {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+  .jh-daily-hint {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+.jh-table th,
+.jh-table td {
+  padding: 9px 12px;
+  /* **表头与内容统一居中**（与后台看板同一套规则）：
+     混用左右对齐时，内容比表头窄的列看起来就像「表头没对齐内容」。
+     折行的两列（专业要求 / 招聘岗位）也居中——它们本来就是整段文本，
+     居中后与其它列的对齐方式一致，不再有「有的左、有的中」的割裂感。 */
+  text-align: center;
+  border-bottom: 1px solid var(--line-faint);
+  vertical-align: middle;
+}
+.jh-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.jh-table tbody tr:hover {
+  background: var(--surface-sunken);
+}
+.jh-table tbody tr.is-open {
+  background: var(--tint-primary);
+}
+.jh-table tbody tr.is-failed {
+  background: color-mix(in srgb, var(--danger) 4%, transparent);
+}
+.jh-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.jh-table--stats {
+  min-width: 640px;
+}
+.jh-table--users {
+  min-width: 560px;
+}
+.jh-table--preview {
+  min-width: 900px;
+  font-size: var(--fs-sm);
+}
+
+/* 首两列冻结：横向滚动时始终能看到「这是第几条、哪家企业」 */
+.jh-sticky-1,
+.jh-sticky-2 {
+  position: sticky;
+  z-index: 1;
+  background: var(--surface);
+}
+.jh-sticky-1 {
+  left: 0;
+}
+/* left 偏移必须**等于序号列的实际宽度**，否则冻结的企业名称会盖住序号、
+   或露出一条缝。序号宽度由 --jh-col-idx-w 统一给出，这里跟着它走。 */
+.jh-sticky-2 {
+  left: var(--jh-col-idx-w);
+  box-shadow: 1px 0 0 var(--line-faint);
+}
+.jh-table thead .jh-sticky-1,
+.jh-table thead .jh-sticky-2 {
+  z-index: 3;
+  background: var(--surface-2);
+}
+.jh-table tbody tr:hover .jh-sticky-1,
+.jh-table tbody tr:hover .jh-sticky-2 {
+  background: var(--surface-sunken);
+}
+.jh-table tbody tr.is-open .jh-sticky-1,
+.jh-table tbody tr.is-open .jh-sticky-2 {
+  background: var(--tint-primary);
+}
+.jh-sticky-r {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: -1px 0 0 var(--line-faint);
+}
+.jh-table thead .jh-sticky-r {
+  z-index: 3;
+  background: var(--surface-2);
+}
+.jh-col-idx {
+  width: var(--jh-col-idx-w, 52px);
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.jh-ellip {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+/* 专业要求 / 招聘岗位：**折行完整显示**，不截断。
+   `.jh-table td` 默认是 middle 对齐，长内容折行后这里改成顶部对齐，
+   否则同一行里「北京」会浮在四行专业的中间，读起来对不上行。 */
+.jh-col-wrap {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: top !important;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.jh-company-cell {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.jh-sort {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.jh-sort:hover {
+  color: var(--fg-link);
+}
+.jh-sort:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+.jh-sort-dir {
+  font-size: 11px;
+  color: var(--fg-link);
+}
+
+.jh-company {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.jh-company:hover {
+  color: var(--fg-link);
+}
+.jh-row-note {
+  margin-top: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--text-dim);
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.jh-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--line-faint);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.jh-col-date {
+  white-space: nowrap;
+}
+.jh-date {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+/* 超过 3 周未更新：淡化为次要信息（公告可能已经过期，但不当成错误） */
+.jh-date.is-old {
+  color: var(--fg-warn);
+}
+.jh-date-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+
+.jh-linkbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--line);
+  color: var(--fg-link);
+  background: var(--surface);
+}
+.jh-linkbtn:hover {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 26%, transparent);
+}
+.jh-linkbtn.is-off {
+  color: var(--text-mute);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.jh-icon-btn {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.jh-icon-btn:hover {
+  background: var(--fill-2);
+  color: var(--text);
+}
+.jh-icon-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.jh-row-actions {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+.jh-menu {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  z-index: 5;
+  min-width: 190px;
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--bg-menu);
+  box-shadow: var(--shadow);
+}
+.jh-menu-company {
+  padding: 4px 8px 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--line-faint);
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+.jh-menu-item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.jh-menu-item:hover {
+  background: var(--fill-2);
+}
+.jh-menu-item--danger {
+  color: var(--fg-danger);
+}
+.jh-menu-item--danger:hover {
+  background: var(--tint-danger);
+}
+.jh-menu-hint {
+  padding: 6px 8px 4px;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  line-height: 1.5;
+}
+
+/* ---------------- 进度徽章 ---------------- */
+.jh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line-faint);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.jh-badge--sm {
+  font-size: var(--fs-xs);
+  padding: 2px 8px;
+}
+.jh-badge--none {
+  background: var(--fill-2);
+  color: var(--text-dim);
+}
+.jh-badge--active {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 24%, transparent);
+  color: var(--fg-link);
+}
+.jh-badge--fail {
+  background: var(--tint-danger);
+  border-color: color-mix(in srgb, var(--danger) 24%, transparent);
+  color: var(--fg-danger);
+}
+.jh-badge--pass {
+  background: var(--tint-ok);
+  border-color: color-mix(in srgb, var(--ok) 24%, transparent);
+  color: var(--fg-ok);
+}
+.jh-badge--btn {
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 32px;
+  transition: box-shadow 0.16s ease, filter 0.16s ease;
+}
+.jh-badge--btn:hover {
+  filter: brightness(0.97);
+  box-shadow: var(--shadow-xs);
+}
+.jh-badge--btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.jh-bdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+}
+.jh-badge-text {
+  line-height: 1.5;
+}
+/* 阶段点数：6 格表示走到第几步（比 15 种颜色更容易扫读） */
+.jh-dots {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 2px;
+}
+.jh-dots i {
+  width: 4px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.25;
+}
+.jh-dots i.on {
+  opacity: 0.75;
+}
+.jh-badge-chev {
+  opacity: 0.6;
+}
+
+/* ---------------- 窄屏卡片形态 ---------------- */
+.jh-cards {
+  display: none;
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 10px;
+}
+.jh-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  padding: 12px var(--space-3);
+}
+.jh-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.jh-card-idx {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+.jh-card-company {
+  font-weight: 600;
+  font-size: var(--fs-md);
+  color: var(--text);
+  flex: 1 1 140px;
+  min-width: 0;
+}
+.jh-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.jh-card-note {
+  margin-top: 8px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.jh-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.jh-foot {
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.jh-foot-note {
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+
+/* ---------------- 数据维护区 ---------------- */
+.jh-data-card {
+  margin-top: var(--space-4);
+}
+.jh-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.jh-hint {
+  margin-top: 10px;
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+.jh-hint--warn {
+  color: var(--fg-warn);
+}
+.jh-hint--info {
+  color: var(--text-dim);
+  border-left: 3px solid var(--primary);
+  padding-left: 10px;
+}
+
+/* ---------------- 统计 ---------------- */
+.jh-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+@media (min-width: 640px) {
+  .jh-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1000px) {
+  .jh-kpis {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.jh-kpi {
+  padding: 12px var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+.jh-kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+.jh-kpi-value {
+  margin-top: 4px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+.jh-kpi-value small {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-mute);
+  margin-left: 4px;
+}
+.jh-kpi-note {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+}
+/* KPI 的色只落在「图标 + 数字」上，不做整卡底色（数据密集页面上底色会互相干扰） */
+.jh-kpi--blue .jh-kpi-label svg,
+.jh-kpi--blue .jh-kpi-value {
+  color: var(--module-blue);
+}
+.jh-kpi--violet .jh-kpi-label svg,
+.jh-kpi--violet .jh-kpi-value {
+  color: var(--module-violet);
+}
+.jh-kpi--teal .jh-kpi-label svg,
+.jh-kpi--teal .jh-kpi-value {
+  color: var(--module-teal);
+}
+.jh-kpi--danger .jh-kpi-label svg,
+.jh-kpi--danger .jh-kpi-value {
+  color: var(--fg-danger);
+}
+.jh-kpi--ok .jh-kpi-label svg,
+.jh-kpi--ok .jh-kpi-value {
+  color: var(--fg-ok);
+}
+
+.jh-panels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+@media (min-width: 860px) {
+  .jh-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.jh-panel {
+  margin-top: var(--space-3);
+}
+.jh-panel--flush {
+  padding: 0;
+  overflow: hidden;
+}
+.jh-panel--flush .card-head {
+  padding: var(--space-4) var(--space-4) 0;
+  margin-bottom: var(--space-3);
+}
+.jh-panel--flush .jh-hint {
+  padding: 0 var(--space-4) var(--space-4);
+}
+.jh-panel-empty {
+  padding: var(--space-4);
+  color: var(--text-mute);
+  font-size: var(--fs-sm);
+}
+
+/* 漏斗 */
+.jh-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.jh-fn-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.jh-fn-name {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.jh-fn-track {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--fill-2);
+  overflow: hidden;
+}
+.jh-fn-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+.jh-fn-val {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+  min-width: 92px;
+  text-align: right;
+}
+.jh-rate {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 分布条 */
+.jh-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.jh-bar-row {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.jh-bar-name {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jh-bar-name.is-strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.jh-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--fill-2);
+  overflow: hidden;
+}
+.jh-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+/* 4 类状态色与 6 个中性色阶：色只用来区分「状态类型」与「第几类」 */
+.jh-bar-fill--none {
+  background: var(--text-mute);
+}
+.jh-bar-fill--active {
+  background: var(--primary);
+}
+.jh-bar-fill--fail {
+  background: var(--danger);
+}
+.jh-bar-fill--pass {
+  background: var(--ok);
+}
+.jh-bar-fill--p0 {
+  background: var(--dim-professional);
+}
+.jh-bar-fill--p1 {
+  background: var(--dim-logic);
+}
+.jh-bar-fill--p2 {
+  background: var(--dim-expression);
+}
+.jh-bar-fill--p3 {
+  background: var(--dim-matching);
+}
+.jh-bar-fill--p4 {
+  background: var(--dim-adaptability);
+}
+.jh-bar-fill--p5 {
+  background: var(--dim-culture_fit);
+}
+.jh-bar-val {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+  min-width: 62px;
+  text-align: right;
+}
+
+.jh-detail-head {
+  flex-wrap: wrap;
+}
+/* 明细页的搜索 / 导出行：**左对齐**，导出紧贴搜索框右侧。
+   （此前是「说明文字 + 搜索 + 导出」一起推到卡片右端，搜索框离视线起点很远。） */
+.jh-detail-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: 0 var(--space-4) var(--space-3);
+}
+.jh-detail-search {
+  width: 240px;
+  min-height: 40px;
+  padding: 6px 10px;
+}
+.jh-detail-pager {
+  padding: 0 var(--space-4);
+}
+
+/* ---------------- 分页（汇总列表 / 投递统计明细共用） ---------------- */
+.jh-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-faint);
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+/* 只有一页时不显示翻页按钮，但保留条数统计（省得用户以为数据少了） */
+.jh-pager--single {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: var(--space-2);
+  color: var(--text-mute);
+}
+.jh-pager-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.jh-page-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.jh-page-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+.jh-page-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.jh-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.jh-page-btn.on {
+  background: var(--tint-primary);
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+  color: var(--fg-link);
+  font-weight: 700;
+}
+.jh-page-num {
+  min-width: 38px;
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.jh-page-gap {
+  padding: 0 2px;
+  color: var(--text-mute);
+}
+/* 图标是「下箭头」，左右各转 90° 复用同一枚矢量图（不额外加两个图标） */
+.jh-page-chev {
+  transform: rotate(-90deg);
+}
+.jh-page-chev--prev {
+  transform: rotate(90deg);
+}
+
+/* ---------------- 弹层（进度选择器 / 导入向导） ---------------- */
+.jh-mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--scrim);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade-up 0.2s ease;
+}
+.jh-modal {
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  /* 用 dvh 而非 vh：移动端地址栏收起后 90vh 会超过可视高度，底部按钮被顶出屏幕 */
+  max-height: calc(100dvh - var(--space-5));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow-lg);
+}
+.jh-modal--wide {
+  max-width: 900px;
+}
+.jh-modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.jh-modal-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.jh-modal-sub {
+  margin-top: 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.jh-modal-body {
+  padding: var(--space-4);
+  overflow-y: auto;
+  flex: 1;
+}
+.jh-modal-foot {
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + var(--safe-b));
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+}
+@media (min-width: 700px) {
+  .jh-mask {
+    align-items: center;
+    padding: 24px;
+  }
+  .jh-modal {
+    border-radius: var(--r-lg);
+  }
+}
+
+/* 进度选择器 */
+.jh-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.jh-picker-label {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  margin-bottom: 6px;
+}
+.jh-picker-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.jh-picker-item {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.jh-picker-item:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+.jh-picker-item.on {
+  border-color: var(--primary);
+  background: var(--tint-primary);
+  color: var(--fg-link);
+}
+.jh-picker-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* 导入向导 */
+.jh-import {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.jh-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 30px 16px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.jh-dropzone:hover,
+.jh-dropzone.over {
+  border-color: var(--primary);
+  background: var(--tint-primary);
+}
+.jh-dropzone-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text);
+}
+.jh-dropzone-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+}
+.jh-paste {
+  min-height: 150px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.jh-map-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.jh-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.jh-field-inline .select {
+  width: auto;
+  min-width: 150px;
+}
+.jh-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+  min-height: 36px;
+  cursor: pointer;
+}
+.jh-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.jh-map-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+@media (min-width: 640px) {
+  .jh-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.jh-map-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.jh-map-label {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.jh-req {
+  color: var(--fg-danger);
+  margin-left: 3px;
+}
+.jh-map-select {
+  min-height: 38px;
+  padding: 6px 30px 6px 10px;
+  font-size: var(--fs-sm);
+}
+/* 自动匹配上的映射高亮，提醒「这一列是猜的，可以改」 */
+.jh-map-select.is-auto {
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: var(--tint-ok);
+}
+.jh-map-select.is-missing {
+  border-color: var(--line-strong);
+  color: var(--text-mute);
+}
+.jh-import-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.jh-preview-head {
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  margin-bottom: 8px;
+}
+.jh-result {
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+.jh-result-title {
+  margin-top: 10px;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+.jh-result-list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--fs-base);
+  color: var(--text-dim);
+}
+.jh-result-list .mute-2 {
+  margin-left: 4px;
+  font-size: var(--fs-xs);
+}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width: 699px) {
+  /* 只有**汇总列表**在窄屏换成卡片：13 列表格在手机上只能横向滑，读起来很累。
+     统计页与账号概览的表格列少（≤6 列），保留横向滚动即可——
+     一起隐藏的话，手机上就再也看不到已投递明细了。 */
+  .jh-tablewrap--main {
+    display: none;
+  }
+  .jh-cards {
+    display: flex;
+  }
+  .jh-fn-row,
+  .jh-bar-row {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .jh-detail-search {
+    width: 100%;
+  }
+  .jh-clear {
+    margin-left: 0;
+  }
+  /* 窄屏省掉「上一页 / 下一页」文字，只留箭头 + 页码 */
+  .jh-page-text {
+    display: none;
+  }
+  .jh-page-btn {
+    min-width: 36px;
+    padding: 0 8px;
+  }
+  .jh-pager {
+    justify-content: center;
+  }
+  .jh-pager-stat {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jh-tab,
+  .jh-fn-bar,
+  .jh-bar-fill,
+  .jh-fbtn,
+  .jh-opt-chip,
+  .jh-page-btn {
+    transition: none;
+  }
+}
